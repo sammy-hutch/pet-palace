@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-
+import { PiCat, PiCatFill } from "react-icons/pi";
+// TODO: IMPORT ALTERNATIVE EXPO ICONS (SEE EXPO ICONS PAGE)
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 
