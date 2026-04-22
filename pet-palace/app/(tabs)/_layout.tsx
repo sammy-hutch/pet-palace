@@ -1,8 +1,6 @@
 import { Tabs } from 'expo-router';
-import { PiCat, PiCatFill } from "react-icons/pi";
-// TODO: IMPORT ALTERNATIVE EXPO ICONS (SEE EXPO ICONS PAGE)
-import Ionicons from '@expo/vector-icons/Ionicons';
 
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function TabLayout() {
   return (
@@ -33,7 +31,34 @@ export default function TabLayout() {
         options={{
           title: 'Palace',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
+            <Ionicons name={focused ? 'paw-sharp' : 'paw-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="logbook"
+        options={{
+          title: 'Logbook',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'book-sharp' : 'book-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="shop"
+        options={{
+          title: 'Shop',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'basket-sharp' : 'basket-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'settings-sharp' : 'settings-outline'} color={color} size={24} />
           ),
         }}
       />
