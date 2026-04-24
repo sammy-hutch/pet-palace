@@ -27,7 +27,7 @@ Database:
 - transaction_history: event-level log of all coin transactions
     - transaction_id, transaction_datetime, transaction_value, running_balance
 - active_cats: adopted cats, in the palace. 1 row per cat. stores position they are in their room
-    - active_cat_id, cat_name, position
+    - active_cat_id, cat_id, cat_name, position
     - happiness, health, preferred_toy_id, preferred_room_id
 - active_rooms: installed rooms in the palace. 1 row per cat. what it boosts (health or happiness) and how much it boosts it (value) is mapped
     - active_room_id, active_cat_id, room_id, enrichment_boost, enrichment_value
@@ -57,4 +57,17 @@ database functions:
       WHERE daily.active_cat_id = c.active_cat_id' //full decrease plus boost model
 
 - when user makes transaction, add that cat/room/toy to respective active list, and decrease running balance by the cost:
-    'INSERT INTO transaction_history
+    'INSERT INTO 
+        transaction_history (transaction_datetime, transaction_value, running_balance) 
+        VALUES (?, ?, ?)'
+    'INSERT INTO 
+        active_cats (cat_id, cat_name, position, happiness, health, preferred_toy_id, preferred_room_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)'
+
+- fetch current balance and avg health and happiness for displaying stats:
+    'SELECT running_balance FROM transaction_history ORDER BY transaction_datetime LIMIT 1'
+    'SELECT AVG(health) FROM active_cats'
+
+- fetch specific cats health or happiness:
+    'SELECT health FROM active_cats WHERE cat_id = ?'
+
