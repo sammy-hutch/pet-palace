@@ -1,5 +1,7 @@
 import { ImageSourcePropType, Text, View, StyleSheet } from 'react-native';
 import { useState} from 'react';
+import { useDatabase } from '../../src/DatabaseContext';
+import * as SQLite from 'expo-sqlite';
 
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
