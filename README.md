@@ -15,23 +15,23 @@ Gameplay:
 - You can have many cats, but more cats means more needs to be met
 
 Database:
-- rooms_fact: available room types
+- X rooms_fact: available room types
     - room_id, room_name, cost
-- cats_fact: available cats
+- X cats_fact: available cats
     - cat_id, cat_name, cost
     - happiness, health, preferred_toy_id, preferred_room_id
-- toys_fact: available toys
+- X toys_fact: available toys
     - toy_id, toy_name, cost
 - activity_log: event-level log of activities recorded in logbook
     - event_id, event_date, event_type
 - transaction_history: event-level log of all coin transactions
     - transaction_id, transaction_datetime, transaction_value, running_balance
-- active_cats: adopted cats, in the palace. 1 row per cat. stores position they are in their room
+- X active_cats: adopted cats, in the palace. 1 row per cat. stores position they are in their room
     - active_cat_id, cat_id, cat_name, position
     - happiness, health, preferred_toy_id, preferred_room_id
-- active_rooms: installed rooms in the palace. 1 row per cat. what it boosts (health or happiness) and how much it boosts it (value) is mapped
+- X active_rooms: installed rooms in the palace. 1 row per cat. what it boosts (health or happiness) and how much it boosts it (value) is mapped
     - active_room_id, active_cat_id, room_id, enrichment_boost, enrichment_value
-- active_toys: bought toys for cats in the palace. many rows per cat. what it boosts (health or happiness), how much it boosts it (value) as well as the position it is in the room is mapped
+- X active_toys: bought toys for cats in the palace. many rows per cat. what it boosts (health or happiness), how much it boosts it (value) as well as the position it is in the room is mapped
     - active_toy_id, active_cat_id, room_id, enrichment_boost, enrichment_value, position
 
 rooms: cabin, pink room, white room, bedroom
