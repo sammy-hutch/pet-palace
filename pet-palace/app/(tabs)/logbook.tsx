@@ -1,13 +1,13 @@
 // example code for database interaction, needs heavy modification
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, FlatList, TextInput, Alert, StyleSheet } from 'react-native';
-import { useDatabase } from '@/src/DatabaseContext';
+import { useDatabase } from '@/src/database/DatabaseContext';
 import * as SQLite from 'expo-sqlite';
 
 interface Item {
-    id: number;
-    name: string;
-    quantity: number;
+    cat_id: number;
+    cat_name: string;
+    cat_cost: number;
 }
 
 export default function LogbookScreen() {
@@ -18,7 +18,7 @@ export default function LogbookScreen() {
 
     const fetchItems = async (database: SQLite.SQLiteDatabase) => {
         try {
-            const result = await database.getAllAsync<Item>('SELECT * FROM items');
+            const result = await database.getAllAsync<Item>('SELECT cat_id, cat_name, cat_cost FROM cats_fact');
             setItems(result);
         } catch (e) {
             console.error("Failed to fetch items:", e);
@@ -45,7 +45,10 @@ export default function LogbookScreen() {
         }
 
         try {
-            await db.runAsync('INSERT INTO items (name, quantity) VALUES (?, ?)', newItemName, quantityNum);
+            await db.runAsync(`INSERT INTO active_cats 
+                (cat_id, cat_name, position_x, position_y, 
+                happiness, health, preferred_toy_id, preferred_room_id) 
+                VALUES (?, ?, 80, 90, 100, 100, 21, 4)`, quantityNum, newItemName);
             setNewItemName('');
             setNewItemQuantity('');
             fetchItems(db); // Re-fetch items to update the list
@@ -93,9 +96,9 @@ export default function LogbookScreen() {
             <Text style={{ fontSize: 20, marginTop: 30, marginBottom: 10 }}>Items:</Text>
             <FlatList
                 data={items}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item.cat_id.toString()}
                 renderItem={({ item }) => (
-                    <Text>{item.name} (x{item.quantity})</Text>
+                    <Text>{item.cat_name} (x{item.cat_cost})</Text>
                 )}
             />
         </View>

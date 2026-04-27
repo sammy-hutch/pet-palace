@@ -1,6 +1,6 @@
 import { ImageSourcePropType, Text, View, StyleSheet } from 'react-native';
 import { useState} from 'react';
-import { useDatabase } from '../../src/DatabaseContext';
+import { useDatabase } from '../../src/database/DatabaseContext';
 import * as SQLite from 'expo-sqlite';
 
 import Button from '@/components/Button';
