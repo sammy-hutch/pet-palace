@@ -1,7 +1,7 @@
 // example code for database interaction, needs heavy modification
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, FlatList, TextInput, Alert, StyleSheet } from 'react-native';
-import { useDatabase } from '@/src/DatabaseContext'; // Adjust path as needed
+import { useDatabase } from '@/src/DatabaseContext';
 import * as SQLite from 'expo-sqlite';
 
 interface Item {

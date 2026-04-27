@@ -2,16 +2,13 @@ import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
 
-export async function initDatabase() {
-    if (db) {
-        console.log("Database already initialised.");
-        return db;
-    }
+const fact_tables = [
+    "cats_fact",
+    "toys_fact",
+    "rooms_fact"
+];
 
-    db = await SQLite.openDatabaseAsync("pet_palace.db");
-    console.log("Database opened successfully");
-
-    await db.execAsync(`CREATE TABLE IF NOT EXISTS cats_fact (
+const create_statements = [`CREATE TABLE IF NOT EXISTS cats_fact (
         cat_id INTEGER PRIMARY KEY AUTOINCREMENT,
         cat_name TEXT NOT NULL,
         cat_cost INTEGER NOT NULL,
@@ -80,8 +77,61 @@ export async function initDatabase() {
         transaction_datetime DATETIME NOT NULL,
         transaction_value INTEGER NOT NULL,
         running_balance INTEGER NOT NULL,
-    );`);
-    console.log("Pets table created or already exists.");
+    );`];
+
+const init_data: Record<string, string> = {
+    "cats_fact": `INSERT INTO cats_fact (cat_name, cat_cost, preferred_toy_id, preferred_room_id) VALUES
+        ('Sissi', 100, 1, 1),
+        ('Max', 100, 2, 2),
+        ('Sot', 100, 3, 3),
+        ('Larry', 100, 4, 4),
+        ('LP', 100, 5, 5);`,
+    "toys_fact": `INSERT INTO toys_fact (toy_name, toy_cost, enrichment_type, enrichment_value) VALUES
+        ('Ball', 10, 'happiness', 5),
+        ('Scratching Post', 20, 'happiness', 10),
+        ('Laser Pointer', 15, 'happiness', 7),
+        ('Feather Wand', 12, 'happiness', 6),
+        ('Catnip Mouse', 8, 'happiness', 4);`,
+    "rooms_fact": `INSERT INTO rooms_fact (room_name, room_cost, enrichment_type, enrichment_value) VALUES
+        ('Living Room', 50, 'happiness', 10),
+        ('Bedroom', 40, 'happiness', 8),
+        ('Kitchen', 30, 'happiness', 6),
+        ('Bathroom', 20, 'happiness', 4),
+        ('Garden', 60, 'happiness', 12);`,
+    "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
+        (CURRENT_TIMESTAMP, 100, 100);`
+};
+
+export async function initDatabase() {
+    if (db) {
+        console.log("Database already initialised.");
+        return db;
+    }
+
+    db = await SQLite.openDatabaseAsync("pet_palace.db");
+    console.log("Database opened successfully");
+
+    for (const statement of create_statements) {
+        await db.execAsync(statement);
+        const match = statement.match(/CREATE TABLE IF NOT EXISTS (\w+)/);
+        if (match && match[1]) {
+            console.log(`Table '${match[1]}' created successfully or already exists.`);
+        } else {
+            console.log(`Executed table creation statement.`);
+        }
+    }
+
+    for (const table of fact_tables) {
+        const countResult: { count: number } | null = await db.getFirstAsync(`SELECT COUNT(*) AS count FROM ${table};`);
+        if (countResult?.count === 0) {
+            console.log(`Table '${table}' is empty. Inserting initial data.`);
+            const initStatement = init_data[table];
+            if (initStatement) {
+                await db.runAsync(initStatement);
+                console.log(`Initial data inserted into ${table}.`);
+            }
+        }
+    }
 
     return db;
 }
