@@ -34,7 +34,6 @@ export default function Index() {
           </Text>
         </View>
 
-        {/* Conditional block is now cleaner */}
         {showFirstTimeSplash && (
           <View style={styles.textSection}>
             <Text style={styles.sectionTitle}>New to the app?</Text>

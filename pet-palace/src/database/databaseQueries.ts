@@ -75,6 +75,12 @@ export const create_statements: Record<string, string> = {
 
 export const fetch_active_cat_count = `SELECT COUNT(*) AS count FROM active_cats;`;
 
+export const fetch_all_adoptable_cats_info = `
+    SELECT cat_id, cat_name, cat_cost, preferred_toy_id, preferred_room_id 
+    FROM cats_fact
+    WHERE cat_id NOT IN (SELECT cat_id FROM active_cats)
+    ;`;
+
 export const init_data: Record<string, string> = {
     "cats_fact": `INSERT INTO cats_fact (cat_name, cat_cost, preferred_toy_id, preferred_room_id) VALUES
         ('Sissi', 100, 1, 1),
