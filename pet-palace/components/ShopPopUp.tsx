@@ -5,15 +5,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 type Props = PropsWithChildren<{
     isVisible: boolean;
     onClose: () => void;
+    title: string;
 }>;
 
-export default function CatPicker({ isVisible, children, onClose }: Props) {
+export default function ShopPopUp({ isVisible, children, onClose, title }: Props) {
     return (
         <View>
             <Modal animationType="slide" transparent={true} visible={isVisible}>
                 <View style={styles.modalContent}>
                     <View style={styles.titleContainer}>
-                        <Text style={styles.title}>Adopt a cat</Text>
+                        <Text style={styles.title}>{title}</Text>
                         <Pressable onPress={onClose}>
                             <Ionicons name="close" color="#fff" size={22} />
                         </Pressable>
@@ -27,7 +28,7 @@ export default function CatPicker({ isVisible, children, onClose }: Props) {
 
 const styles = StyleSheet.create({
   modalContent: {
-    height: '100%',
+    height: '25%',
     width: '100%',
     backgroundColor: '#25292e',
     borderTopRightRadius: 18,

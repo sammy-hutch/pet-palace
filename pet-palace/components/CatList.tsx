@@ -1,32 +1,57 @@
 import React from 'react';
-import { FlatList, View, Text, ActivityIndicator, StyleSheet, Pressable, ImageSourcePropType } from 'react-native';
+import { FlatList, View, Text, ActivityIndicator, StyleSheet, Pressable, ImageSourcePropType, Image, TouchableOpacity, Alert } from 'react-native';
 import { useAdoptableCatsCheck } from '../src/hooks/useAdoptableCatsCheck';
 
-type CatListItemProps = {
-    cat: {
-        cat_name: string;
-        cat_id: number;
-        cat_cost: number;
-        // add other cat properties as needed
-    };
+
+
+interface Cat {
+    cat_id: number;
+    cat_name: string;
+    cat_cost: number;
+    cat_image_url: string;
+    // Add other properties as needed
+}
+
+interface CatListItemProps {
+    cat: Cat;
+    onPurchase: (catId: number) => void;
+}
+
+const CatListItem: React.FC<CatListItemProps> = ({ cat, onPurchase }) => {
+    return (
+        <View style={styles.item}>
+            <Image source={{ uri: cat.cat_image_url }} style={styles.catImage} />
+
+            <View style={styles.rightContent}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>Name: {cat.cat_name}</Text>
+                    <Text>ID: {cat.cat_id}</Text>
+                    <Text>Cost: ${cat.cat_cost}</Text>
+                    {/* Display other properties as needed */}
+                </View>
+
+                <TouchableOpacity 
+                    style={styles.purchaseButton} 
+                    onPress={() => onPurchase(cat.cat_id)}
+                >
+                    <Text style={styles.purchaseButtonText}>Purchase</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
 };
 
-const CatListItem = ({ cat }: CatListItemProps) => (
-    <View style={styles.item}>
-    <Text style={styles.title}>Name: {cat.cat_name}</Text>
-    <Text>ID: {cat.cat_id}</Text>
-    <Text>Cost: ${cat.cat_cost}</Text>
-    {/* Display other properties as needed */}
-    </View>
-);
-
-// type Props = {
-//     onSelect: (image: ImageSourcePropType) => void;
-//     onCloseModal: () => void;
-// };
-
-export default function CatList(/*{ onSelect, onCloseModal }: Props*/) {
+export default function CatList() {
     const { adoptableCats, isFetchingCats, catFetchError } = useAdoptableCatsCheck();
+
+    const adoptableCatsWithImages = adoptableCats.map(cat => ({
+        ...cat,
+        cat_image_url: `https://placekitten.com/200/200?image=${cat.cat_id}` // Example image URL using placekitten
+    }));
+
+    const handlePurchase = (catId: number) => {
+        Alert.alert('Purchase', `You have purchased cat with ID: ${catId}`);
+    };
 
     if (isFetchingCats) {
     return (
@@ -55,17 +80,11 @@ export default function CatList(/*{ onSelect, onCloseModal }: Props*/) {
 
     return (
     <FlatList
-        data={adoptableCats}
+        data={adoptableCatsWithImages}
         keyExtractor={(item) => item.cat_id.toString()}
         renderItem={({ item }) => (
-            /*<Pressable
-                onPress={() => {
-                    onSelect(item);
-                    onCloseModal();
-                }}>*/
-                <CatListItem cat={item} />
-            /*</Pressable>*/
-            )}
+            <CatListItem cat={item} onPurchase={handlePurchase} />
+        )}
         contentContainerStyle={styles.listContainer}
     />
     );
@@ -80,24 +99,55 @@ centered: {
 listContainer: {
   paddingVertical: 10,
 },
-item: {
-  backgroundColor: '#f9f9f9',
-  padding: 20,
-  marginVertical: 8,
-  marginHorizontal: 16,
-  borderRadius: 8,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.2,
-  shadowRadius: 1.41,
-  elevation: 2,
-},
-title: {
-  fontSize: 18,
-  fontWeight: 'bold',
-},
 errorText: {
   color: 'red',
   fontSize: 16,
+},
+item: {
+    flexDirection: 'row',
+    backgroundColor: '#f9f9f9',
+    padding: 15,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    alignItems: 'center',
+},
+catImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 15,
+    resizeMode: 'cover',
+},
+rightContent: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '100%',
+},
+textContainer: {
+},
+title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+},
+purchaseButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginTop: 10,
+    alignSelf: 'flex-end',
+},
+purchaseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
 },
 });

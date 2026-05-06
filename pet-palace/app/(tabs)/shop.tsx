@@ -7,9 +7,8 @@ import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
 import IconButton from '@/components/IconButton';
 import ToyList from '@/components/ToyList';
-import ToyPicker from '@/components/ToyPicker';
 import CatList from '@/components/CatList';
-import CatPicker from '@/components/CatPicker';
+import ShopPopUp from '@/components/ShopPopUp';
 
 export default function ShopScreen() {
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
@@ -37,7 +36,7 @@ export default function ShopScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Purchase items for your pets!</Text>
+            <Text style={styles.text}>Adopt cats and purchase items for your pets!</Text>
             {showPurchaseNudge ? (
                 <View style={styles.optionsContainer}>
                     <View style={styles.optionsRow}>
@@ -53,12 +52,12 @@ export default function ShopScreen() {
                 </View>
 
             )}
-            <ToyPicker isVisible={isToyModalVisible} onClose={onModalClose}>
+            <ShopPopUp isVisible={isToyModalVisible} onClose={onModalClose} title='Choose a toy'>
                 <ToyList onSelect={setPickedToy} onCloseModal={onModalClose} />
-            </ToyPicker>
-            <CatPicker isVisible={isCatModalVisible} onClose={onModalClose}>
+            </ShopPopUp>
+            <ShopPopUp isVisible={isCatModalVisible} onClose={onModalClose} title='Choose a cat'>
                 <CatList />
-            </CatPicker>
+            </ShopPopUp>
         </View>
     );
 }
