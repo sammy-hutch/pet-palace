@@ -26,17 +26,17 @@ export function useDatabaseItems<T extends GenericDbItem>(itemType: string) {
            if (db && !isDbLoading && !dbError) {
                try {
                    // TODO: update with correct query
-                   const query = `SELECT * FROM ${itemType}`;
+                   const query = `SELECT * FROM ${itemType}_fact;`;
                    const result = await db.getAllAsync<T>(query);
                    setItems(result);
                } catch (e) {
-                   console.error(`Failed to fetch items from ${itemType}:`, e);
+                   console.error(`Failed to fetch items from ${itemType}_fact:`, e);
                    setFetchError(e instanceof Error ? e : new Error(String(e)));
                } finally {
                    setIsFetching(false);
                }
            } else if (dbError) {
-               console.error(`Database error prevented fetch from ${itemType}:`, dbError);
+               console.error(`Database error prevented fetch from ${itemType}_fact:`, dbError);
                setFetchError(dbError);
                setIsFetching(false);
            }

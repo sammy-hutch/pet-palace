@@ -50,7 +50,7 @@ export default function ShopScreen() {
     };
 
     const getCatImageUrl = (cat: Cat): string => {
-       return `assets/images/cats/${cat.cat_name}.png`;
+       return `@/assets/images/cats/${cat.cat_name}.png`;
     };
 
     const renderCatContent = (cat: Cat) => (

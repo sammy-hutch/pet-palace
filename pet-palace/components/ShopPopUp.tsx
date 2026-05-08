@@ -28,7 +28,7 @@ export default function ShopPopUp({ isVisible, children, onClose, title }: Props
 
 const styles = StyleSheet.create({
   modalContent: {
-    height: '25%',
+    height: '100%',
     width: '100%',
     backgroundColor: '#25292e',
     borderTopRightRadius: 18,
