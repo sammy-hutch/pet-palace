@@ -1,6 +1,6 @@
 // ItemList.tsx
 import React from 'react';
-import { FlatList, View, Text, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { FlatList, View, Text, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Alert, ImageSourcePropType } from 'react-native';
 import { useDatabaseItems, GenericDbItem } from '../src/hooks/useDatabaseItems';
 
 interface ItemListProps<T extends GenericDbItem> {
@@ -11,7 +11,7 @@ interface ItemListProps<T extends GenericDbItem> {
    loadingMessage: string; // Message to display while loading
    onItemAction: (itemId: number | string) => void; // Callback for when the action button is pressed
 
-   getImageUrl: (item: T) => string;
+   getImageUrl: (item: T) => ImageSourcePropType | undefined; // Function to get image URL for an item
 
    renderItemContent: (item: T) => React.ReactNode;
 }
@@ -75,7 +75,7 @@ export default function ItemList<T extends GenericDbItem>({
            renderItem={({ item }) => (
                <View style={styles.item}>
                    {item._imageUrl ? (
-                       <Image source={{ uri: item._imageUrl }} style={styles.itemImage} />
+                       <Image source={item._imageUrl} style={styles.itemImage} />
                    ) : (
                        <View style={[styles.itemImage, styles.noImageIcon]}>
                            <Text style={styles.noImageText}>No Image</Text>

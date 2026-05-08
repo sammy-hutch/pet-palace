@@ -91,14 +91,14 @@ export const init_data: Record<string, string> = {
     "toys_fact": `INSERT INTO toys_fact (toy_name, toy_cost, enrichment_type, enrichment_value) VALUES
         ('Ball', 10, 'happiness', 5),
         ('Scratching Post', 20, 'happiness', 10),
-        ('Laser Pointer', 15, 'happiness', 7),
+        ('Yarn', 15, 'happiness', 7),
         ('Feather Wand', 12, 'happiness', 6),
         ('Catnip Mouse', 8, 'happiness', 4);`,
     "rooms_fact": `INSERT INTO rooms_fact (room_name, room_cost, enrichment_type, enrichment_value) VALUES
-        ('Living Room', 50, 'happiness', 10),
-        ('Bedroom', 40, 'happiness', 8),
-        ('Kitchen', 30, 'happiness', 6),
-        ('Bathroom', 20, 'happiness', 4),
+        ('Pink Room', 50, 'happiness', 10),
+        ('Cabin Room', 40, 'happiness', 8),
+        ('Cosy Room', 30, 'happiness', 6),
+        ('Plant Room', 20, 'happiness', 4),
         ('Garden', 60, 'happiness', 12);`,
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
         (CURRENT_TIMESTAMP, 100, 100);`

@@ -1,8 +1,9 @@
 import { ImageSourcePropType, Text, View, StyleSheet, Alert } from 'react-native';
-import { useState} from 'react';
+import { useState } from 'react';
 import { useDatabase } from '../../src/database/DatabaseContext';
 import * as SQLite from 'expo-sqlite';
 import { GenericDbItem } from '../../src/hooks/useDatabaseItems'
+import { imageSources } from '../../src/utils/imageMap';
 
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
@@ -15,9 +16,16 @@ interface Cat extends GenericDbItem {
    cat_id: number;
    cat_name: string;
    cat_cost: number;
-   // Add other cat-specific properties from your database table
    preferred_toy_id?: number;
    preferred_room_id?: number;
+}
+
+interface Toy extends GenericDbItem {
+   toy_id: number;
+   toy_name: string;
+   toy_cost: number;
+   enrichment_type?: string;
+   enrichment_value?: number;
 }
 
 export default function ShopScreen() {
@@ -48,9 +56,18 @@ export default function ShopScreen() {
        Alert.alert('Purchase Cat', `You have initiated purchase for Cat ID: ${catId}`);
        // In a real app, you'd integrate with payment processing, inventory updates, etc.
     };
+    
+    const handlePurchaseToy = (toyId: number | string) => {
+       Alert.alert('Purchase Toy', `You have initiated purchase for Toy ID: ${toyId}`);
+       // In a real app, you'd integrate with payment processing, inventory updates, etc.
+    };
 
-    const getCatImageUrl = (cat: Cat): string => {
-       return `@/assets/images/cats/${cat.cat_name}.png`;
+    const getCatImageUrl = (cat: Cat): ImageSourcePropType | undefined => {
+       return imageSources[cat.cat_name];
+    };
+
+    const getToyImageUrl = (toy: Toy): ImageSourcePropType | undefined => {
+       return imageSources[toy.toy_name];
     };
 
     const renderCatContent = (cat: Cat) => (
@@ -60,6 +77,17 @@ export default function ShopScreen() {
            <Text>Cost: ${cat.cat_cost}</Text>
            {cat.preferred_toy_id && <Text>Prefers Toy ID: {cat.preferred_toy_id}</Text>}
            {/* Add other cat-specific details here */}
+       </View>
+    );
+
+    const renderToyContent = (toy: Toy) => (
+       <View>
+           <Text style={styles.title}>Name: {toy.toy_name}</Text>
+           <Text>ID: {toy.toy_id}</Text>
+           <Text>Cost: ${toy.toy_cost}</Text>
+           {toy.enrichment_type && <Text>Enrichment Type: {toy.enrichment_type}</Text>}
+           {toy.enrichment_value && <Text>Enrichment Value: {toy.enrichment_value}</Text>}
+           {/* Add other toy-specific details here */}
        </View>
     );
 
@@ -82,7 +110,16 @@ export default function ShopScreen() {
 
             )}
             <ShopPopUp isVisible={isToyModalVisible} onClose={onModalClose} title='Choose a toy'>
-                <ToyList onSelect={setPickedToy} onCloseModal={onModalClose} />
+                <ItemList<Toy>
+                    itemType="toys" // Your actual table name for toys
+                    idKey="toy_id"
+                    actionButtonText="Buy"
+                    emptyMessage="No toys available at the moment."
+                    loadingMessage="Loading toys..."
+                    onItemAction={handlePurchaseToy}
+                    getImageUrl={getToyImageUrl}
+                    renderItemContent={renderToyContent}
+                />
             </ShopPopUp>
             <ShopPopUp isVisible={isCatModalVisible} onClose={onModalClose} title='Choose a cat'>
                 <ItemList<Cat>
