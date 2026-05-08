@@ -1,14 +1,24 @@
-import { ImageSourcePropType, Text, View, StyleSheet } from 'react-native';
+import { ImageSourcePropType, Text, View, StyleSheet, Alert } from 'react-native';
 import { useState} from 'react';
 import { useDatabase } from '../../src/database/DatabaseContext';
 import * as SQLite from 'expo-sqlite';
+import { GenericDbItem } from '../../src/hooks/useDatabaseItems'
 
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
 import IconButton from '@/components/IconButton';
 import ToyList from '@/components/ToyList';
-import CatList from '@/components/CatList';
+import ItemList from '@/components/ItemList';
 import ShopPopUp from '@/components/ShopPopUp';
+
+interface Cat extends GenericDbItem {
+   cat_id: number;
+   cat_name: string;
+   cat_cost: number;
+   // Add other cat-specific properties from your database table
+   preferred_toy_id?: number;
+   preferred_room_id?: number;
+}
 
 export default function ShopScreen() {
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
@@ -33,6 +43,25 @@ export default function ShopScreen() {
         setIsToyModalVisible(false);
         setIsCatModalVisible(false);
     };
+    
+    const handlePurchaseCat = (catId: number | string) => {
+       Alert.alert('Purchase Cat', `You have initiated purchase for Cat ID: ${catId}`);
+       // In a real app, you'd integrate with payment processing, inventory updates, etc.
+    };
+
+    const getCatImageUrl = (cat: Cat): string => {
+       return `assets/images/cats/${cat.cat_name}.png`;
+    };
+
+    const renderCatContent = (cat: Cat) => (
+       <View>
+           <Text style={styles.title}>Name: {cat.cat_name}</Text>
+           <Text>ID: {cat.cat_id}</Text>
+           <Text>Cost: ${cat.cat_cost}</Text>
+           {cat.preferred_toy_id && <Text>Prefers Toy ID: {cat.preferred_toy_id}</Text>}
+           {/* Add other cat-specific details here */}
+       </View>
+    );
 
     return (
         <View style={styles.container}>
@@ -56,7 +85,16 @@ export default function ShopScreen() {
                 <ToyList onSelect={setPickedToy} onCloseModal={onModalClose} />
             </ShopPopUp>
             <ShopPopUp isVisible={isCatModalVisible} onClose={onModalClose} title='Choose a cat'>
-                <CatList />
+                <ItemList<Cat>
+                    itemType="cats" // Your actual table name for cats
+                    idKey="cat_id"
+                    actionButtonText="Adopt"
+                    emptyMessage="No adoptable cats found at the moment."
+                    loadingMessage="Loading adoptable cats..."
+                    onItemAction={handlePurchaseCat}
+                    getImageUrl={getCatImageUrl}
+                    renderItemContent={renderCatContent}
+                />
             </ShopPopUp>
         </View>
     );
@@ -83,5 +121,10 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#fff',
-    }
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 5,
+    },
 });
