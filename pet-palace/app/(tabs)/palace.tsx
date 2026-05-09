@@ -4,8 +4,8 @@ import { useState } from 'react';
 import ImageViewer from '@/components/ImageViewer';
 import ToyImage from '@/components/ToyImage';
 
-const PlaceholderImage = require('@/assets/images/rooms/pink-room.png')
-const PlaceholderImage2 = require('@/assets/images/rooms/cabin-room.png')
+const PlaceholderImage = require('@/assets/images/rooms/PinkRoom.png')
+const PlaceholderImage2 = require('@/assets/images/rooms/CabinRoom.png')
 
 export default function PalaceScreen() {
 
