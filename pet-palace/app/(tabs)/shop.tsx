@@ -3,7 +3,7 @@ import { useState, useLayoutEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import { useShopDbActions } from '../../src/hooks/useShopDbActions';
-import { handlePurchase } from '../../src/hooks/useShopPurchaseActions';
+import { useShopPurchaseActions } from '../../src/hooks/useShopPurchaseActions';
 import { Cat, Toy, Room, PurchasableItem } from '../../src/types/db';
 
 import Button from '@/components/Button';
@@ -16,9 +16,8 @@ import { imageSources } from '../../src/utils/imageMap';
 
 export default function ShopScreen() {
     const navigation = useNavigation();
-    const {
-        fetchCurrentCoinCount
-    } = useShopDbActions();
+    const { fetchCurrentCoinCount } = useShopDbActions();
+    const { handlePurchase } = useShopPurchaseActions();
 
     const [coinCount, setCoinCount] = useState<number>(0);
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
@@ -62,9 +61,11 @@ export default function ShopScreen() {
     }, [navigation, coinCount]);
 
     const onPurchase = async (item: PurchasableItem) => {
-        await handlePurchase(item);
-        onModalClose();
-        await fetchCoinCount();
+        const success = await handlePurchase(item);
+        if (success) {
+            onModalClose();
+            await fetchCoinCount();
+        }
     };
 
     const onReset = () => {
