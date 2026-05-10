@@ -75,6 +75,31 @@ export const create_statements: Record<string, string> = {
 
 export const fetch_active_cat_count = `SELECT COUNT(*) AS count FROM active_cats;`;
 
+export const fetch_all_active_cats = `
+    SELECT active_cat_id, cat_id, cat_name, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id
+    FROM active_cats;`
+;
+
+export const fetch_all_active_toys = `
+    SELECT active_toy_id, toy_id, toy_name, active_cat_id, active_room_id, position_x, position_y, enrichment_type, enrichment_value
+    FROM active_toys;`
+;
+
+export const fetch_all_active_rooms = `
+    SELECT active_room_id, room_id, room_name, active_cat_id, enrichment_type, enrichment_value
+    FROM active_rooms;`
+;
+
+export const fetch_available_cats_for_toy = `
+    SELECT DISTINCT active_cat_id, cat_name 
+    FROM active_cats 
+    WHERE active_cat_id NOT IN (
+        SELECT active_cat_id 
+        FROM active_toys 
+        WHERE toy_id = ?
+    );
+`;
+
 export const fetch_buyable_items: Record<string, string> = {
     "cats": `
         SELECT c.cat_id AS cat_id, c.cat_name AS cat_name, c.cat_cost AS cat_cost, t.toy_name AS preferred_toy_name, r.room_name AS preferred_room_name
@@ -91,9 +116,11 @@ export const fetch_buyable_items: Record<string, string> = {
         SELECT room_id, room_name, room_cost, enrichment_type, enrichment_value
         FROM rooms_fact;
     `,
-}
+};
 
 export const fetch_coin_count = `SELECT running_balance AS coins FROM transaction_history ORDER BY transaction_datetime DESC LIMIT 1;`;
+
+export const fetch_empty_active_rooms = `SELECT active_room_id, room_name FROM active_rooms WHERE active_cat_id IS NULL;`;
 
 export const init_data: Record<string, string> = {
     "cats_fact": `INSERT INTO cats_fact (cat_name, cat_cost, preferred_toy_id, preferred_room_id) VALUES
@@ -118,14 +145,23 @@ export const init_data: Record<string, string> = {
         (CURRENT_TIMESTAMP, 100, 100);`
 };
 
-export const insert_item_into_active: Record<string, string> = {
-    "cats": `INSERT INTO active_cats (cat_id, cat_name, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id)
-            SELECT cat_id, cat_name, 0, 0, 50, 100, preferred_toy_id, preferred_room_id FROM cats_fact WHERE cat_id = ?;`,
-    "toys": `INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value)
-            SELECT toy_id, toy_name, 0, 0, 0, enrichment_type, enrichment_value FROM toys_fact WHERE toy_id = ?;`,
-    "rooms": `INSERT INTO active_rooms (room_id, room_name, active_cat_id, enrichment_type, enrichment_value)
-            SELECT room_id, room_name, null AS active_cat_id, enrichment_type, enrichment_value FROM rooms_fact WHERE room_id = ?;`
-};
+export const insert_item_into_active_cats = `
+    INSERT INTO active_cats (cat_id, cat_name, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id)
+    SELECT cat_id, cat_name, 0, 0, 50, 100, preferred_toy_id, preferred_room_id FROM cats_fact WHERE cat_id = ?;
+    UPDATE active_rooms 
+    SET active_cat_id = (SELECT active_cat_id FROM active_cats WHERE cat_id = ?) 
+    WHERE active_room_id = ?;
+`;
+
+export const insert_item_into_active_toys = `
+    INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value)
+    SELECT toy_id, toy_name, ?, 0, 0, enrichment_type, enrichment_value FROM toys_fact WHERE toy_id = ?;
+`;
+
+export const insert_item_into_active_rooms = `
+    INSERT INTO active_rooms (room_id, room_name, active_cat_id, enrichment_type, enrichment_value)
+    SELECT room_id, room_name, null AS active_cat_id, enrichment_type, enrichment_value FROM rooms_fact WHERE room_id = ?;
+`;
 
 export const insert_transaction = `
     INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) 

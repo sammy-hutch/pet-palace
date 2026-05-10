@@ -1,11 +1,9 @@
 import { ImageSourcePropType, Text, View, StyleSheet, Alert, Pressable } from 'react-native';
 import { useState, useLayoutEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { useDatabase } from '../../src/database/DatabaseContext';
-import * as SQLite from 'expo-sqlite';
-import { GenericDbItem } from '../../src/hooks/useDatabaseItems'
-import { imageSources } from '../../src/utils/imageMap';
-import { fetch_coin_count, insert_item_into_active, insert_transaction } from "@/src/database/databaseQueries";
+
+import { useShopDbActions } from '../../src/hooks/useShopDbActions';
+import { Cat, Toy, Room, PurchasableItem } from '../../src/types/db';
 
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
@@ -13,38 +11,22 @@ import IconButton from '@/components/IconButton';
 import ItemList from '@/components/ItemList';
 import ShopPopUp from '@/components/ShopPopUp';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-interface Cat extends GenericDbItem {
-   cat_id: number;
-   cat_name: string;
-   cat_cost: number;
-   preferred_toy_name: string;
-   preferred_room_name: string;
-}
-
-interface Toy extends GenericDbItem {
-   toy_id: number;
-   toy_name: string;
-   toy_cost: number;
-   enrichment_type: string;
-   enrichment_value: number;
-}
-
-interface Room extends GenericDbItem {
-   room_id: number;
-   room_name: string;
-   room_cost: number;
-   enrichment_type: string;
-   enrichment_value: number;
-}
-
-type PurchasableItem = Cat | Toy | Room;
+import { imageSources } from '../../src/utils/imageMap';
 
 export default function ShopScreen() {
     const navigation = useNavigation();
-    const { db } = useDatabase();
+    const { 
+        logTransaction, 
+        insertItemIntoActiveCats, 
+        insertItemIntoActiveToys,
+        insertItemIntoActiveRooms,
+        fetchAvailableCatsForToy, 
+        fetchCurrentCoinCount, 
+        fetchEmptyActiveRooms 
+    } = useShopDbActions();
 
     const [coinCount, setCoinCount] = useState<number>(0);
+    const [emptyActiveRooms, setEmptyActiveRooms] = useState<{ active_room_id: number; room_name: string }[]>([]);
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
     const [isToyModalVisible, setIsToyModalVisible] = useState<boolean>(false);
     const [isCatModalVisible, setIsCatModalVisible] = useState<boolean>(false);
@@ -53,56 +35,28 @@ export default function ShopScreen() {
     const [pickedCat, setPickedCat] = useState<ImageSourcePropType | undefined>(undefined);
     const [pickedRoom, setPickedRoom] = useState<ImageSourcePropType | undefined>(undefined);
 
-    const logTransaction = useCallback(async (transactionValue: number) => {
-        if (!db) {
-            console.warn("Database not initialized yet.");
-            return;
-        }
-        try {
-            await db.runAsync(insert_transaction, transactionValue, transactionValue);
-        } catch (error) {
-            console.error("Failed to log transaction:", error);
-        }
-    }, [db]);
-    
-    const insertItemIntoActive = useCallback(async (itemType: string, itemId: number) => {
-        if (!db) {
-            console.warn("Database not initialized yet.");
-            return;
-        }
-        try {
-            await db.runAsync(insert_item_into_active[itemType], itemId);
-        } catch (error) {
-            console.error("Failed to insert item into active tables:", error);
-        }
-    }, [db]);
-
     const fetchCoinCount = useCallback(async () => {
-        if (!db) {
-            console.warn("Database not initialized yet.");
-            return;
-        }
-        try {
-            const result = await db.getFirstAsync<{ coins: number }>(fetch_coin_count);
-            if (result && typeof result.coins === 'number') {
-                setCoinCount(result.coins);
-            } else {
-                setCoinCount(0);
-            }
-        } catch (error) {
-            console.error("Failed to fetch coin count:", error);
-            setCoinCount(0);
-        }
-    }, [db]);
+        const count = await fetchCurrentCoinCount();
+        setCoinCount(count);
+    }, [fetchCurrentCoinCount]);
+
+    const fetchEmptyActiveRoomsList = useCallback(async () => {
+        const rooms = await fetchEmptyActiveRooms();
+        setEmptyActiveRooms(rooms);
+    }, [fetchEmptyActiveRooms]);
 
     useLayoutEffect(() => {
         fetchCoinCount();
     }, [fetchCoinCount]);
 
     useLayoutEffect(() => {
+        fetchEmptyActiveRoomsList();
+    }, [fetchEmptyActiveRoomsList]);
+
+    useLayoutEffect(() => {
         navigation.setOptions({
-            title: 'Shop', // Static title for the screen
-            headerShown: true, // Ensure the header is shown for this tab
+            title: 'Shop',
+            headerShown: true,
             headerRight: () => (
                 <View style={headerStyles.coinContainer}>
                     <Ionicons name="cash-outline" size={20} color="#FFD700" />
@@ -111,11 +65,10 @@ export default function ShopScreen() {
                     </Text>
                 </View>
             ),
-            // You can also customize header styles here if needed
             headerStyle: {
-                backgroundColor: '#30363d', // Darker header background for contrast
+                backgroundColor: '#30363d',
             },
-            headerTintColor: '#fff', // Color of title and icons
+            headerTintColor: '#fff',
             headerTitleStyle: {
                 fontWeight: 'bold',
                 fontSize: 20,
@@ -144,39 +97,120 @@ export default function ShopScreen() {
         setIsCatModalVisible(false);
         setIsRoomModalVisible(false);
     };
-    
+
     const handlePurchase = async (item: PurchasableItem) => {
         let itemType: string;
         let itemId: number;
         let itemCost: number;
+        let itemName: string;
+        let chosenRoomId: number;
+        let chosenCatId: number;
+        let action: string = 'buy';
 
         if ('cat_id' in item) {
             itemType = 'cats';
             itemId = item.cat_id;
             itemCost = item.cat_cost;
+            itemName = item.cat_name;
+            action = 'adopt';
         } else if ('toy_id' in item) {
             itemType = 'toys';
             itemId = item.toy_id;
             itemCost = item.toy_cost;
+            itemName = item.toy_name;
         } else if ('room_id' in item) {
             itemType = 'rooms';
             itemId = item.room_id;
             itemCost = item.room_cost;
+            itemName = item.room_name;
+            action = 'build';
         } else {
             console.error('Attempted to purchase an unknown item type:', item);
-            Alert.alert('Error', 'Could not process purchase for this item.');
+            Alert.alert('Error', 'Could not process purchase for this item: Unknown type.');
             return;
         }
 
-        Alert.alert(`Purchase ${itemType}`, `You have initiated purchase for ${itemType} ID: ${itemId}`);
-        await logTransaction(-itemCost);
-        await insertItemIntoActive(itemType, itemId);
-        onModalClose(); // Close the modal after purchase attempt
+        if (itemType === 'cats') {
+            if (emptyActiveRooms.length === 0) {
+                Alert.alert('No Available Rooms', 'You need to have at least one empty room available to adopt a cat. Please purchase a room first.');
+                return;
+            } else if (emptyActiveRooms.length > 0) {
+                Alert.alert(
+                    'Choose a Room',
+                    'Please choose an empty room for your new cat:',
+                    emptyActiveRooms.map(room => ({
+                        text: room.room_name,
+                        onPress: async () => {
+                            chosenRoomId = room.active_room_id;
+                        }
+                    }))
+                );
+            }
+        }
 
-        await fetchCoinCount();
+        if (itemType === 'toys') {
+            const availableCats = await fetchAvailableCatsForToy(itemId);
+            if (availableCats.length === 0) {
+                Alert.alert('No Available Cats', 'All your cats are currently playing with this toy. Please choose a different toy or wait until one of your cats is available.');
+                return;
+            } else if (availableCats.length > 0) {
+                Alert.alert(
+                    'Choose a Cat',
+                    'Please choose a cat to play with this toy:',
+                    availableCats.map(cat => ({
+                        text: cat.cat_name,
+                        onPress: async () => {
+                            chosenCatId = cat.active_cat_id;
+                        }
+                    }))
+                );
+            }
+        }
+
+        Alert.alert(
+            `Confirm Purchase`,
+            `Are you sure you want to ${action} ${itemName} for $${itemCost}?`,
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                    onPress: () => console.log("Purchase cancelled")
+                },
+                {
+                    text: "Confirm",
+                    onPress: async () => {
+                        try {
+                            await logTransaction(-itemCost);
+                            if (itemType === 'cats') {
+                                if (!chosenRoomId) {
+                                    Alert.alert('Error', 'No room selected for cat adoption. Please try again.');
+                                    return;
+                                }
+                                await insertItemIntoActiveCats(itemId, chosenRoomId);
+                            } else if (itemType === 'toys') {
+                                if (!chosenCatId) {
+                                    Alert.alert('Error', 'No cat selected for toy purchase. Please try again.');
+                                    return;
+                                }
+                                await insertItemIntoActiveToys(itemId, chosenCatId);
+                            } else if (itemType === 'rooms') {
+                                await insertItemIntoActiveRooms(itemId);
+                            }
+                            onModalClose();
+                            await fetchCoinCount();
+                            await fetchEmptyActiveRoomsList();
+                            Alert.alert("Success", `${itemName} ${action}ed successfully!`);
+                        } catch (error) {
+                            console.error("Purchase failed:", error);
+                            Alert.alert("Purchase Failed", `There was an error processing your purchase for ${itemName}.`);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
-     const _getTypedImageUrl = <T extends Record<string, any>>(item: T, nameKey: keyof T & string): ImageSourcePropType | undefined => {
+    const _getTypedImageUrl = <T extends Record<string, any>>(item: T, nameKey: keyof T & string): ImageSourcePropType | undefined => {
         const itemName = item[nameKey] as string;
         if (itemName && imageSources[itemName]) {
             return imageSources[itemName];
@@ -185,11 +219,11 @@ export default function ShopScreen() {
     };
 
     const getCatImageUrl = (cat: Cat): ImageSourcePropType | undefined => {
-       return _getTypedImageUrl(cat, 'cat_name');
+        return _getTypedImageUrl(cat, 'cat_name');
     };
 
     const getToyImageUrl = (toy: Toy): ImageSourcePropType | undefined => {
-       return _getTypedImageUrl(toy, 'toy_name');
+        return _getTypedImageUrl(toy, 'toy_name');
     };
 
     const getRoomImageUrl = (room: Room): ImageSourcePropType | undefined => {
@@ -197,27 +231,27 @@ export default function ShopScreen() {
     };
 
     const renderCatContent = (cat: Cat) => (
-       <View>
-           <Text style={styles.title}>Name: {cat.cat_name}</Text>
-           <Text>Cost: ${cat.cat_cost}</Text>
-           {cat.preferred_toy_name && <Text>Preferred Toy: {cat.preferred_toy_name}</Text>}
-           {cat.preferred_room_name && <Text>Preferred Room: {cat.preferred_room_name}</Text>}
-       </View>
+        <View>
+            <Text style={styles.title}>Name: {cat.cat_name}</Text>
+            <Text>Cost: ${cat.cat_cost}</Text>
+            {cat.preferred_toy_name && <Text>Preferred Toy: {cat.preferred_toy_name}</Text>}
+            {cat.preferred_room_name && <Text>Preferred Room: {cat.preferred_room_name}</Text>}
+        </View>
     );
 
     const renderToyContent = (toy: Toy) => (
-       <View>
-           <Text style={styles.title}>Name: {toy.toy_name}</Text>
-           <Text>Cost: ${toy.toy_cost}</Text>
-           <Text>{toy.enrichment_type}: +{toy.enrichment_value}</Text>
-       </View>
+        <View>
+            <Text style={styles.title}>Name: {toy.toy_name}</Text>
+            <Text>Cost: ${toy.toy_cost}</Text>
+            <Text>{toy.enrichment_type}: +{toy.enrichment_value}</Text>
+        </View>
     );
 
     const renderRoomContent = (room: Room) => (
         <View>
             <Text style={styles.title}>Name: {room.room_name}</Text>
             <Text>Cost: ${room.room_cost}</Text>
-           <Text>{room.enrichment_type}: +{room.enrichment_value}</Text>
+            <Text>{room.enrichment_type}: +{room.enrichment_value}</Text>
         </View>
     );
 
