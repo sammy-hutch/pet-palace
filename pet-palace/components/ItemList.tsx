@@ -9,7 +9,7 @@ interface ItemListProps<T extends GenericDbItem> {
    actionButtonText: string; // Text for the button (e.g., "Purchase", "Adopt", "View")
    emptyMessage: string; // Message to display when no items are found
    loadingMessage: string; // Message to display while loading
-   onItemAction: (itemId: number | string) => void; // Callback for when the action button is pressed
+   onItemAction: (item: T) => void; // Callback for when the action button is pressed
 
    getImageUrl: (item: T) => ImageSourcePropType | undefined; // Function to get image URL for an item
 
@@ -36,7 +36,7 @@ export default function ItemList<T extends GenericDbItem>({
    const handleItemActionPress = (item: T) => {
        const itemId = item[idKey];
        if (typeof itemId === 'number' || typeof itemId === 'string') {
-           onItemAction(itemId);
+           onItemAction(item);
        } else {
            console.warn(`Item ID for key '${String(idKey)}' is not a number or string:`, itemId);
            Alert.alert('Error', 'Could not perform action: Invalid item ID.');

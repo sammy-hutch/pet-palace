@@ -75,11 +75,23 @@ export const create_statements: Record<string, string> = {
 
 export const fetch_active_cat_count = `SELECT COUNT(*) AS count FROM active_cats;`;
 
-export const fetch_all_adoptable_cats_info = `
-    SELECT cat_id, cat_name, cat_cost, preferred_toy_id, preferred_room_id 
-    FROM cats_fact
-    WHERE cat_id NOT IN (SELECT cat_id FROM active_cats)
-    ;`;
+export const fetch_buyable_items: Record<string, string> = {
+    "cats": `
+        SELECT c.cat_id AS cat_id, c.cat_name AS cat_name, c.cat_cost AS cat_cost, t.toy_name AS preferred_toy_name, r.room_name AS preferred_room_name
+        FROM cats_fact AS c
+        LEFT JOIN toys_fact AS t ON c.preferred_toy_id = t.toy_id 
+        LEFT JOIN rooms_fact AS r ON c.preferred_room_id = r.room_id
+        WHERE c.cat_id NOT IN (SELECT cat_id FROM active_cats);
+    `,
+    "toys": `
+        SELECT toy_id, toy_name, toy_cost, enrichment_type, enrichment_value
+        FROM toys_fact;
+    `,
+    "rooms": `
+        SELECT room_id, room_name, room_cost, enrichment_type, enrichment_value
+        FROM rooms_fact;
+    `,
+}
 
 export const init_data: Record<string, string> = {
     "cats_fact": `INSERT INTO cats_fact (cat_name, cat_cost, preferred_toy_id, preferred_room_id) VALUES

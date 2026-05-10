@@ -16,24 +16,36 @@ interface Cat extends GenericDbItem {
    cat_id: number;
    cat_name: string;
    cat_cost: number;
-   preferred_toy_id?: number;
-   preferred_room_id?: number;
+   preferred_toy_name: string;
+   preferred_room_name: string;
 }
 
 interface Toy extends GenericDbItem {
    toy_id: number;
    toy_name: string;
    toy_cost: number;
-   enrichment_type?: string;
-   enrichment_value?: number;
+   enrichment_type: string;
+   enrichment_value: number;
 }
+
+interface Room extends GenericDbItem {
+   room_id: number;
+   room_name: string;
+   room_cost: number;
+   enrichment_type: string;
+   enrichment_value: number;
+}
+
+type PurchasableItem = Cat | Toy | Room;
 
 export default function ShopScreen() {
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
     const [isToyModalVisible, setIsToyModalVisible] = useState<boolean>(false);
     const [isCatModalVisible, setIsCatModalVisible] = useState<boolean>(false);
+    const [isRoomModalVisible, setIsRoomModalVisible] = useState<boolean>(false);
     const [pickedToy, setPickedToy] = useState<ImageSourcePropType | undefined>(undefined);
     const [pickedCat, setPickedCat] = useState<ImageSourcePropType | undefined>(undefined);
+    const [pickedRoom, setPickedRoom] = useState<ImageSourcePropType | undefined>(undefined);
 
     const onReset = () => {
         setShowPurchaseNudge(false);
@@ -47,65 +59,105 @@ export default function ShopScreen() {
         setIsCatModalVisible(true);
     };
 
+    const onConfirmRoomPurchase = () => {
+        setIsRoomModalVisible(true);
+    }
+
     const onModalClose = () => {
         setIsToyModalVisible(false);
         setIsCatModalVisible(false);
+        setIsRoomModalVisible(false);
     };
     
-    const handlePurchaseCat = (catId: number | string) => {
-       Alert.alert('Purchase Cat', `You have initiated purchase for Cat ID: ${catId}`);
-       // In a real app, you'd integrate with payment processing, inventory updates, etc.
+    const handlePurchase = (item: PurchasableItem) => {
+        let itemType: string;
+        let itemId: number | string;
+
+        // Use type guards to determine the item type and extract its ID
+        if ('cat_id' in item) {
+            itemType = 'Cat';
+            itemId = item.cat_id;
+        } else if ('toy_id' in item) {
+            itemType = 'Toy';
+            itemId = item.toy_id;
+        } else if ('room_id' in item) {
+            itemType = 'Room';
+            itemId = item.room_id;
+        } else {
+            // Fallback for unexpected item structure
+            console.error('Attempted to purchase an unknown item type:', item);
+            Alert.alert('Error', 'Could not process purchase for this item.');
+            return;
+        }
+
+        Alert.alert(`Purchase ${itemType}`, `You have initiated purchase for ${itemType} ID: ${itemId}`);
+        // In a real app, you'd integrate with payment processing, inventory updates, etc.
+        // After successful purchase, you might want to close the modal, update inventory, player currency, etc.
+        onModalClose(); // Close the modal after purchase attempt
     };
-    
-    const handlePurchaseToy = (toyId: number | string) => {
-       Alert.alert('Purchase Toy', `You have initiated purchase for Toy ID: ${toyId}`);
-       // In a real app, you'd integrate with payment processing, inventory updates, etc.
+
+     const _getTypedImageUrl = <T extends Record<string, any>>(item: T, nameKey: keyof T & string): ImageSourcePropType | undefined => {
+        const itemName = item[nameKey] as string;
+        if (itemName && imageSources[itemName]) {
+            return imageSources[itemName];
+        }
+        return undefined;
     };
 
     const getCatImageUrl = (cat: Cat): ImageSourcePropType | undefined => {
-       return imageSources[cat.cat_name];
+       return _getTypedImageUrl(cat, 'cat_name');
     };
 
     const getToyImageUrl = (toy: Toy): ImageSourcePropType | undefined => {
-       return imageSources[toy.toy_name];
+       return _getTypedImageUrl(toy, 'toy_name');
+    };
+
+    const getRoomImageUrl = (room: Room): ImageSourcePropType | undefined => {
+        return _getTypedImageUrl(room, 'room_name');
     };
 
     const renderCatContent = (cat: Cat) => (
        <View>
            <Text style={styles.title}>Name: {cat.cat_name}</Text>
-           <Text>ID: {cat.cat_id}</Text>
            <Text>Cost: ${cat.cat_cost}</Text>
-           {cat.preferred_toy_id && <Text>Prefers Toy ID: {cat.preferred_toy_id}</Text>}
-           {/* Add other cat-specific details here */}
+           {cat.preferred_toy_name && <Text>Preferred Toy: {cat.preferred_toy_name}</Text>}
+           {cat.preferred_room_name && <Text>Preferred Room: {cat.preferred_room_name}</Text>}
        </View>
     );
 
     const renderToyContent = (toy: Toy) => (
        <View>
            <Text style={styles.title}>Name: {toy.toy_name}</Text>
-           <Text>ID: {toy.toy_id}</Text>
            <Text>Cost: ${toy.toy_cost}</Text>
-           {toy.enrichment_type && <Text>Enrichment Type: {toy.enrichment_type}</Text>}
-           {toy.enrichment_value && <Text>Enrichment Value: {toy.enrichment_value}</Text>}
-           {/* Add other toy-specific details here */}
+           <Text>{toy.enrichment_type}: +{toy.enrichment_value}</Text>
        </View>
+    );
+
+    const renderRoomContent = (room: Room) => (
+        <View>
+            <Text style={styles.title}>Name: {room.room_name}</Text>
+            <Text>Cost: ${room.room_cost}</Text>
+           <Text>{room.enrichment_type}: +{room.enrichment_value}</Text>
+        </View>
     );
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Adopt cats and purchase items for your pets!</Text>
+            <Text style={styles.text}>Adopt cats, build rooms and purchase items for your pets!</Text>
             {showPurchaseNudge ? (
                 <View style={styles.optionsContainer}>
                     <View style={styles.optionsRow}>
                         <IconButton icon="chevron-back" label="Back" onPress={onReset} />
                         <CircleButton onPress={onConfirmToyPurchase} />
                         <CircleButton onPress={onConfirmCatPurchase} />
+                        <CircleButton onPress={onConfirmRoomPurchase} />
                     </View>
                 </View>
             ) : (
                 <View style={styles.footerContainer}>
                     <Button label="Adopt a Cat" onPress={() => setIsCatModalVisible(true)} />
                     <Button label="Buy a toy" onPress={() => setIsToyModalVisible(true)}/>
+                    <Button label="Buy a room" onPress={() => setIsRoomModalVisible(true)} />
                 </View>
 
             )}
@@ -116,7 +168,7 @@ export default function ShopScreen() {
                     actionButtonText="Buy"
                     emptyMessage="No toys available at the moment."
                     loadingMessage="Loading toys..."
-                    onItemAction={handlePurchaseToy}
+                    onItemAction={handlePurchase}
                     getImageUrl={getToyImageUrl}
                     renderItemContent={renderToyContent}
                 />
@@ -128,9 +180,21 @@ export default function ShopScreen() {
                     actionButtonText="Adopt"
                     emptyMessage="No adoptable cats found at the moment."
                     loadingMessage="Loading adoptable cats..."
-                    onItemAction={handlePurchaseCat}
+                    onItemAction={handlePurchase}
                     getImageUrl={getCatImageUrl}
                     renderItemContent={renderCatContent}
+                />
+            </ShopPopUp>
+            <ShopPopUp isVisible={isRoomModalVisible} onClose={onModalClose} title='Choose a room'>
+                <ItemList<Room>
+                    itemType="rooms" // Your actual table name for rooms
+                    idKey="room_id"
+                    actionButtonText="Buy"
+                    emptyMessage="No rooms available at the moment."
+                    loadingMessage="Loading rooms..."
+                    onItemAction={handlePurchase}
+                    getImageUrl={getRoomImageUrl}
+                    renderItemContent={renderRoomContent}
                 />
             </ShopPopUp>
         </View>

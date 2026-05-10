@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDatabase } from "@/src/database/DatabaseContext";
-import { fetch_all_adoptable_cats_info } from "@/src/database/databaseQueries"; // TODO: Replace with query when created
+import { fetch_buyable_items } from "@/src/database/databaseQueries"; // TODO: Replace with query when created
 
 export interface GenericDbItem {
    [key: string]: any;
@@ -25,8 +25,7 @@ export function useDatabaseItems<T extends GenericDbItem>(itemType: string) {
 
            if (db && !isDbLoading && !dbError) {
                try {
-                   // TODO: update with correct query
-                   const query = `SELECT * FROM ${itemType}_fact;`;
+                   const query = fetch_buyable_items[itemType];
                    const result = await db.getAllAsync<T>(query);
                    setItems(result);
                } catch (e) {
