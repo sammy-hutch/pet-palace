@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDatabase } from '../database/DatabaseContext';
 import { 
-    fetch_buyable_items, 
+    fetch_items, 
     fetch_empty_active_rooms, 
     fetch_coin_count, 
     insert_item_into_active_cats, 
@@ -15,7 +15,7 @@ import { GenericDbItem } from '../types/db';
 
 /**
 * A generic hook to fetch items from a specified database table.
-* @param itemType The type of the item, part of the database table name (e.g., 'cats', 'toys', 'rooms').
+* @param itemType The type of the item, part of the database table name (e.g., 'buyable_cats', 'buyable_toys', 'buyable_rooms').
 * @returns An object containing the fetched items, fetching state, and any error.
 */
 export function useDatabaseItems<T extends GenericDbItem>(itemType: string) {
@@ -32,17 +32,17 @@ export function useDatabaseItems<T extends GenericDbItem>(itemType: string) {
 
            if (db && !isDbLoading && !dbError) {
                try {
-                   const query = fetch_buyable_items[itemType];
+                   const query = fetch_items[itemType];
                    const result = await db.getAllAsync<T>(query);
                    setItems(result);
                } catch (e) {
-                   console.error(`Failed to fetch items from ${itemType}_fact:`, e);
+                   console.error(`Failed to fetch items from ${itemType} table:`, e);
                    setFetchError(e instanceof Error ? e : new Error(String(e)));
                } finally {
                    setIsFetching(false);
                }
            } else if (dbError) {
-               console.error(`Database error prevented fetch from ${itemType}_fact:`, dbError);
+               console.error(`Database error prevented fetch from ${itemType} table:`, dbError);
                setFetchError(dbError);
                setIsFetching(false);
            }
@@ -78,7 +78,7 @@ export const useShopDbActions = () => {
         }
         try {
             const query = insert_item_into_active_cats;
-            await db.runAsync(query, itemId, itemId, chosenRoomId);
+            await db.runAsync(query, chosenRoomId, itemId);
             console.log(`Item (type: cats, ID: ${itemId}) inserted into active tables.`);
         } catch (error) {
             console.error(`Failed to insert item ${itemId} into active tables for type cats:`, error);

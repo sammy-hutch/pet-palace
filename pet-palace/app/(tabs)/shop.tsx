@@ -2,7 +2,7 @@ import { ImageSourcePropType, Text, View, StyleSheet, Alert, Pressable } from 'r
 import { useState, useLayoutEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
-import { useShopDbActions } from '../../src/hooks/useShopDbActions';
+import { useShopDbActions } from '../../src/hooks/useDbActions';
 import { useShopPurchaseActions } from '../../src/hooks/useShopPurchaseActions';
 import { Cat, Toy, Room, PurchasableItem } from '../../src/types/db';
 
@@ -157,7 +157,7 @@ export default function ShopScreen() {
             )}
             <ShopPopUp isVisible={isToyModalVisible} onClose={onModalClose} title='Choose a toy'>
                 <ItemList<Toy>
-                    itemType="toys"
+                    itemType="buyable_toys"
                     idKey="toy_id"
                     actionButtonText="Buy"
                     emptyMessage="No toys available at the moment."
@@ -169,7 +169,7 @@ export default function ShopScreen() {
             </ShopPopUp>
             <ShopPopUp isVisible={isCatModalVisible} onClose={onModalClose} title='Choose a cat'>
                 <ItemList<Cat>
-                    itemType="cats"
+                    itemType="buyable_cats"
                     idKey="cat_id"
                     actionButtonText="Adopt"
                     emptyMessage="No adoptable cats found at the moment."
@@ -181,7 +181,7 @@ export default function ShopScreen() {
             </ShopPopUp>
             <ShopPopUp isVisible={isRoomModalVisible} onClose={onModalClose} title='Choose a room'>
                 <ItemList<Room>
-                    itemType="rooms"
+                    itemType="buyable_rooms"
                     idKey="room_id"
                     actionButtonText="Buy"
                     emptyMessage="No rooms available at the moment."

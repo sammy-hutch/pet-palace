@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { useShopDbActions } from './useShopDbActions';
+import { useShopDbActions } from './useDbActions';
 import { PurchasableItem } from '../types/db';
 
 export const useShopPurchaseActions = () => {
@@ -39,12 +39,12 @@ export const useShopPurchaseActions = () => {
                         text: "Confirm",
                         onPress: async () => {
                             try {
-                                if (itemType === 'cats' && chosenRoomId === undefined) {
+                                if (itemType === 'buyable_cats' && chosenRoomId === undefined) {
                                     Alert.alert('Error', 'No room selected for cat adoption. Please try again.');
                                     resolve(false);
                                     return;
                                 }
-                                if (itemType === 'toys' && chosenCatId === undefined) {
+                                if (itemType === 'buyable_toys' && chosenCatId === undefined) {
                                     Alert.alert('Error', 'No cat selected for toy purchase. Please try again.');
                                     resolve(false);
                                     return;
@@ -52,15 +52,15 @@ export const useShopPurchaseActions = () => {
 
                                 await logTransaction(-itemCost);
 
-                                if (itemType === 'cats') {
+                                if (itemType === 'buyable_cats') {
                                     await insertItemIntoActiveCats(itemId, chosenRoomId!);
-                                } else if (itemType === 'toys') {
+                                } else if (itemType === 'buyable_toys') {
                                     await insertItemIntoActiveToys(itemId, chosenCatId!);
-                                } else if (itemType === 'rooms') {
+                                } else if (itemType === 'buyable_rooms') {
                                     await insertItemIntoActiveRooms(itemId);
                                 }
 
-                                Alert.alert("Success", `${itemName} ${action_past_tense}ed successfully!`);
+                                Alert.alert("Success", `${itemName} ${action_past_tense} successfully!`);
                                 resolve(true);
                             } catch (error) {
                                 console.error("Purchase failed:", error);
@@ -84,19 +84,19 @@ export const useShopPurchaseActions = () => {
 
         // --- 1. Determine Item Type and Details ---
         if ('cat_id' in item) {
-            itemType = 'cats';
+            itemType = 'buyable_cats';
             itemId = item.cat_id;
             itemCost = item.cat_cost;
             itemName = item.cat_name;
             action = 'adopt';
             action_past_tense = 'adopted';
         } else if ('toy_id' in item) {
-            itemType = 'toys';
+            itemType = 'buyable_toys';
             itemId = item.toy_id;
             itemCost = item.toy_cost;
             itemName = item.toy_name;
         } else if ('room_id' in item) {
-            itemType = 'rooms';
+            itemType = 'buyable_rooms';
             itemId = item.room_id;
             itemCost = item.room_cost;
             itemName = item.room_name;
@@ -109,7 +109,7 @@ export const useShopPurchaseActions = () => {
         }
 
         // --- 2. Handle Item-Specific Selections and Chaining Alerts ---
-        if (itemType === 'cats') {
+        if (itemType === 'buyable_cats') {
             const emptyActiveRooms = await fetchEmptyActiveRooms();
             if (emptyActiveRooms.length === 0) {
                 Alert.alert('No Available Rooms', 'You need to have at least one empty room available to adopt a cat. Please purchase a room first.');
@@ -139,7 +139,7 @@ export const useShopPurchaseActions = () => {
                     ]
                 );
             });
-        } else if (itemType === 'toys') {
+        } else if (itemType === 'buyable_toys') {
             const availableCats = await fetchAvailableCatsForToy(itemId);
             if (availableCats.length === 0) {
                 Alert.alert('No Available Cats', 'All your cats are currently playing with this toy. Please choose a different toy or wait until one of your cats is available.');

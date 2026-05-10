@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlatList, View, Text, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Alert, ImageSourcePropType } from 'react-native';
-import { useDatabaseItems } from '../src/hooks/useShopDbActions';
+import { useDatabaseItems } from '../src/hooks/useDbActions';
 import { GenericDbItem } from '../src/types/db';
 
 interface ItemListProps<T extends GenericDbItem> {
