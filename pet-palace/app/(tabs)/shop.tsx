@@ -3,6 +3,7 @@ import { useState, useLayoutEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import { useShopDbActions } from '../../src/hooks/useShopDbActions';
+import { handlePurchase } from '../../src/hooks/useShopPurchaseActions';
 import { Cat, Toy, Room, PurchasableItem } from '../../src/types/db';
 
 import Button from '@/components/Button';
@@ -15,18 +16,11 @@ import { imageSources } from '../../src/utils/imageMap';
 
 export default function ShopScreen() {
     const navigation = useNavigation();
-    const { 
-        logTransaction, 
-        insertItemIntoActiveCats, 
-        insertItemIntoActiveToys,
-        insertItemIntoActiveRooms,
-        fetchAvailableCatsForToy, 
-        fetchCurrentCoinCount, 
-        fetchEmptyActiveRooms 
+    const {
+        fetchCurrentCoinCount
     } = useShopDbActions();
 
     const [coinCount, setCoinCount] = useState<number>(0);
-    const [emptyActiveRooms, setEmptyActiveRooms] = useState<{ active_room_id: number; room_name: string }[]>([]);
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
     const [isToyModalVisible, setIsToyModalVisible] = useState<boolean>(false);
     const [isCatModalVisible, setIsCatModalVisible] = useState<boolean>(false);
@@ -40,18 +34,9 @@ export default function ShopScreen() {
         setCoinCount(count);
     }, [fetchCurrentCoinCount]);
 
-    const fetchEmptyActiveRoomsList = useCallback(async () => {
-        const rooms = await fetchEmptyActiveRooms();
-        setEmptyActiveRooms(rooms);
-    }, [fetchEmptyActiveRooms]);
-
     useLayoutEffect(() => {
         fetchCoinCount();
     }, [fetchCoinCount]);
-
-    useLayoutEffect(() => {
-        fetchEmptyActiveRoomsList();
-    }, [fetchEmptyActiveRoomsList]);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -76,6 +61,12 @@ export default function ShopScreen() {
         });
     }, [navigation, coinCount]);
 
+    const onPurchase = async (item: PurchasableItem) => {
+        await handlePurchase(item);
+        onModalClose();
+        await fetchCoinCount();
+    };
+
     const onReset = () => {
         setShowPurchaseNudge(false);
     };
@@ -96,118 +87,6 @@ export default function ShopScreen() {
         setIsToyModalVisible(false);
         setIsCatModalVisible(false);
         setIsRoomModalVisible(false);
-    };
-
-    const handlePurchase = async (item: PurchasableItem) => {
-        let itemType: string;
-        let itemId: number;
-        let itemCost: number;
-        let itemName: string;
-        let chosenRoomId: number;
-        let chosenCatId: number;
-        let action: string = 'buy';
-
-        if ('cat_id' in item) {
-            itemType = 'cats';
-            itemId = item.cat_id;
-            itemCost = item.cat_cost;
-            itemName = item.cat_name;
-            action = 'adopt';
-        } else if ('toy_id' in item) {
-            itemType = 'toys';
-            itemId = item.toy_id;
-            itemCost = item.toy_cost;
-            itemName = item.toy_name;
-        } else if ('room_id' in item) {
-            itemType = 'rooms';
-            itemId = item.room_id;
-            itemCost = item.room_cost;
-            itemName = item.room_name;
-            action = 'build';
-        } else {
-            console.error('Attempted to purchase an unknown item type:', item);
-            Alert.alert('Error', 'Could not process purchase for this item: Unknown type.');
-            return;
-        }
-
-        if (itemType === 'cats') {
-            if (emptyActiveRooms.length === 0) {
-                Alert.alert('No Available Rooms', 'You need to have at least one empty room available to adopt a cat. Please purchase a room first.');
-                return;
-            } else if (emptyActiveRooms.length > 0) {
-                Alert.alert(
-                    'Choose a Room',
-                    'Please choose an empty room for your new cat:',
-                    emptyActiveRooms.map(room => ({
-                        text: room.room_name,
-                        onPress: async () => {
-                            chosenRoomId = room.active_room_id;
-                        }
-                    }))
-                );
-            }
-        }
-
-        if (itemType === 'toys') {
-            const availableCats = await fetchAvailableCatsForToy(itemId);
-            if (availableCats.length === 0) {
-                Alert.alert('No Available Cats', 'All your cats are currently playing with this toy. Please choose a different toy or wait until one of your cats is available.');
-                return;
-            } else if (availableCats.length > 0) {
-                Alert.alert(
-                    'Choose a Cat',
-                    'Please choose a cat to play with this toy:',
-                    availableCats.map(cat => ({
-                        text: cat.cat_name,
-                        onPress: async () => {
-                            chosenCatId = cat.active_cat_id;
-                        }
-                    }))
-                );
-            }
-        }
-
-        Alert.alert(
-            `Confirm Purchase`,
-            `Are you sure you want to ${action} ${itemName} for $${itemCost}?`,
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel",
-                    onPress: () => console.log("Purchase cancelled")
-                },
-                {
-                    text: "Confirm",
-                    onPress: async () => {
-                        try {
-                            await logTransaction(-itemCost);
-                            if (itemType === 'cats') {
-                                if (!chosenRoomId) {
-                                    Alert.alert('Error', 'No room selected for cat adoption. Please try again.');
-                                    return;
-                                }
-                                await insertItemIntoActiveCats(itemId, chosenRoomId);
-                            } else if (itemType === 'toys') {
-                                if (!chosenCatId) {
-                                    Alert.alert('Error', 'No cat selected for toy purchase. Please try again.');
-                                    return;
-                                }
-                                await insertItemIntoActiveToys(itemId, chosenCatId);
-                            } else if (itemType === 'rooms') {
-                                await insertItemIntoActiveRooms(itemId);
-                            }
-                            onModalClose();
-                            await fetchCoinCount();
-                            await fetchEmptyActiveRoomsList();
-                            Alert.alert("Success", `${itemName} ${action}ed successfully!`);
-                        } catch (error) {
-                            console.error("Purchase failed:", error);
-                            Alert.alert("Purchase Failed", `There was an error processing your purchase for ${itemName}.`);
-                        }
-                    }
-                }
-            ]
-        );
     };
 
     const _getTypedImageUrl = <T extends Record<string, any>>(item: T, nameKey: keyof T & string): ImageSourcePropType | undefined => {
@@ -282,7 +161,7 @@ export default function ShopScreen() {
                     actionButtonText="Buy"
                     emptyMessage="No toys available at the moment."
                     loadingMessage="Loading toys..."
-                    onItemAction={handlePurchase}
+                    onItemAction={onPurchase}
                     getImageUrl={getToyImageUrl}
                     renderItemContent={renderToyContent}
                 />
@@ -294,7 +173,7 @@ export default function ShopScreen() {
                     actionButtonText="Adopt"
                     emptyMessage="No adoptable cats found at the moment."
                     loadingMessage="Loading adoptable cats..."
-                    onItemAction={handlePurchase}
+                    onItemAction={onPurchase}
                     getImageUrl={getCatImageUrl}
                     renderItemContent={renderCatContent}
                 />
@@ -306,7 +185,7 @@ export default function ShopScreen() {
                     actionButtonText="Buy"
                     emptyMessage="No rooms available at the moment."
                     loadingMessage="Loading rooms..."
-                    onItemAction={handlePurchase}
+                    onItemAction={onPurchase}
                     getImageUrl={getRoomImageUrl}
                     renderItemContent={renderRoomContent}
                 />

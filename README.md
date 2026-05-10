@@ -71,3 +71,6 @@ database functions:
 - fetch specific cats health or happiness:
     'SELECT health FROM active_cats WHERE cat_id = ?'
 
+## TODO
+- replace handlePurchase alerts with modal for nicer UI (images etc)
+
