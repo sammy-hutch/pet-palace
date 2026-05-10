@@ -93,6 +93,8 @@ export const fetch_buyable_items: Record<string, string> = {
     `,
 }
 
+export const fetch_coin_count = `SELECT running_balance AS coins FROM transaction_history ORDER BY transaction_datetime DESC LIMIT 1;`;
+
 export const init_data: Record<string, string> = {
     "cats_fact": `INSERT INTO cats_fact (cat_name, cat_cost, preferred_toy_id, preferred_room_id) VALUES
         ('Sissi', 100, 1, 1),
@@ -115,3 +117,17 @@ export const init_data: Record<string, string> = {
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
         (CURRENT_TIMESTAMP, 100, 100);`
 };
+
+export const insert_item_into_active: Record<string, string> = {
+    "cats": `INSERT INTO active_cats (cat_id, cat_name, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id)
+            SELECT cat_id, cat_name, 0, 0, 50, 100, preferred_toy_id, preferred_room_id FROM cats_fact WHERE cat_id = ?;`,
+    "toys": `INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value)
+            SELECT toy_id, toy_name, 0, 0, 0, enrichment_type, enrichment_value FROM toys_fact WHERE toy_id = ?;`,
+    "rooms": `INSERT INTO active_rooms (room_id, room_name, active_cat_id, enrichment_type, enrichment_value)
+            SELECT room_id, room_name, null AS active_cat_id, enrichment_type, enrichment_value FROM rooms_fact WHERE room_id = ?;`
+};
+
+export const insert_transaction = `
+    INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) 
+    VALUES (CURRENT_TIMESTAMP, ?, (SELECT running_balance FROM transaction_history ORDER BY transaction_datetime DESC LIMIT 1) + ?);
+    `;

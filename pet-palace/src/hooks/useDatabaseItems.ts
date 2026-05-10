@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDatabase } from "@/src/database/DatabaseContext";
-import { fetch_buyable_items } from "@/src/database/databaseQueries"; // TODO: Replace with query when created
+import { fetch_buyable_items } from "@/src/database/databaseQueries";
 
 export interface GenericDbItem {
    [key: string]: any;

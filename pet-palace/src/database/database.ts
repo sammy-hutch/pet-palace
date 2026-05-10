@@ -14,10 +14,11 @@ const all_tables = [
     "transaction_history"
 ];
 
-const fact_tables = [
+const init_load_tables = [
     "cats_fact",
     "toys_fact",
-    "rooms_fact"
+    "rooms_fact",
+    "transaction_history"
 ];
 
 export async function initDatabase() {
@@ -35,7 +36,7 @@ export async function initDatabase() {
         console.log(`Table '${table}' created successfully or already exists.`);
     }
 
-    for (const table of fact_tables) {
+    for (const table of init_load_tables) {
         const countResult: { count: number } | null = await db.getFirstAsync(`SELECT COUNT(*) AS count FROM ${table};`);
         if (countResult?.count === 0) {
             console.log(`Table '${table}' is empty. Inserting initial data.`);

@@ -1,16 +1,18 @@
-import { ImageSourcePropType, Text, View, StyleSheet, Alert } from 'react-native';
-import { useState } from 'react';
+import { ImageSourcePropType, Text, View, StyleSheet, Alert, Pressable } from 'react-native';
+import { useState, useLayoutEffect, useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { useDatabase } from '../../src/database/DatabaseContext';
 import * as SQLite from 'expo-sqlite';
 import { GenericDbItem } from '../../src/hooks/useDatabaseItems'
 import { imageSources } from '../../src/utils/imageMap';
+import { fetch_coin_count, insert_item_into_active, insert_transaction } from "@/src/database/databaseQueries";
 
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
 import IconButton from '@/components/IconButton';
-import ToyList from '@/components/ToyList';
 import ItemList from '@/components/ItemList';
 import ShopPopUp from '@/components/ShopPopUp';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface Cat extends GenericDbItem {
    cat_id: number;
@@ -39,6 +41,10 @@ interface Room extends GenericDbItem {
 type PurchasableItem = Cat | Toy | Room;
 
 export default function ShopScreen() {
+    const navigation = useNavigation();
+    const { db } = useDatabase();
+
+    const [coinCount, setCoinCount] = useState<number>(0);
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
     const [isToyModalVisible, setIsToyModalVisible] = useState<boolean>(false);
     const [isCatModalVisible, setIsCatModalVisible] = useState<boolean>(false);
@@ -46,6 +52,76 @@ export default function ShopScreen() {
     const [pickedToy, setPickedToy] = useState<ImageSourcePropType | undefined>(undefined);
     const [pickedCat, setPickedCat] = useState<ImageSourcePropType | undefined>(undefined);
     const [pickedRoom, setPickedRoom] = useState<ImageSourcePropType | undefined>(undefined);
+
+    const logTransaction = useCallback(async (transactionValue: number) => {
+        if (!db) {
+            console.warn("Database not initialized yet.");
+            return;
+        }
+        try {
+            await db.runAsync(insert_transaction, transactionValue, transactionValue);
+        } catch (error) {
+            console.error("Failed to log transaction:", error);
+        }
+    }, [db]);
+    
+    const insertItemIntoActive = useCallback(async (itemType: string, itemId: number) => {
+        if (!db) {
+            console.warn("Database not initialized yet.");
+            return;
+        }
+        try {
+            await db.runAsync(insert_item_into_active[itemType], itemId);
+        } catch (error) {
+            console.error("Failed to insert item into active tables:", error);
+        }
+    }, [db]);
+
+    const fetchCoinCount = useCallback(async () => {
+        if (!db) {
+            console.warn("Database not initialized yet.");
+            return;
+        }
+        try {
+            const result = await db.getFirstAsync<{ coins: number }>(fetch_coin_count);
+            if (result && typeof result.coins === 'number') {
+                setCoinCount(result.coins);
+            } else {
+                setCoinCount(0);
+            }
+        } catch (error) {
+            console.error("Failed to fetch coin count:", error);
+            setCoinCount(0);
+        }
+    }, [db]);
+
+    useLayoutEffect(() => {
+        fetchCoinCount();
+    }, [fetchCoinCount]);
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            title: 'Shop', // Static title for the screen
+            headerShown: true, // Ensure the header is shown for this tab
+            headerRight: () => (
+                <View style={headerStyles.coinContainer}>
+                    <Ionicons name="cash-outline" size={20} color="#FFD700" />
+                    <Text style={headerStyles.coinText}>
+                        {coinCount !== null ? coinCount.toLocaleString() : 'Loading...'}
+                    </Text>
+                </View>
+            ),
+            // You can also customize header styles here if needed
+            headerStyle: {
+                backgroundColor: '#30363d', // Darker header background for contrast
+            },
+            headerTintColor: '#fff', // Color of title and icons
+            headerTitleStyle: {
+                fontWeight: 'bold',
+                fontSize: 20,
+            },
+        });
+    }, [navigation, coinCount]);
 
     const onReset = () => {
         setShowPurchaseNudge(false);
@@ -69,31 +145,35 @@ export default function ShopScreen() {
         setIsRoomModalVisible(false);
     };
     
-    const handlePurchase = (item: PurchasableItem) => {
+    const handlePurchase = async (item: PurchasableItem) => {
         let itemType: string;
-        let itemId: number | string;
+        let itemId: number;
+        let itemCost: number;
 
-        // Use type guards to determine the item type and extract its ID
         if ('cat_id' in item) {
-            itemType = 'Cat';
+            itemType = 'cats';
             itemId = item.cat_id;
+            itemCost = item.cat_cost;
         } else if ('toy_id' in item) {
-            itemType = 'Toy';
+            itemType = 'toys';
             itemId = item.toy_id;
+            itemCost = item.toy_cost;
         } else if ('room_id' in item) {
-            itemType = 'Room';
+            itemType = 'rooms';
             itemId = item.room_id;
+            itemCost = item.room_cost;
         } else {
-            // Fallback for unexpected item structure
             console.error('Attempted to purchase an unknown item type:', item);
             Alert.alert('Error', 'Could not process purchase for this item.');
             return;
         }
 
         Alert.alert(`Purchase ${itemType}`, `You have initiated purchase for ${itemType} ID: ${itemId}`);
-        // In a real app, you'd integrate with payment processing, inventory updates, etc.
-        // After successful purchase, you might want to close the modal, update inventory, player currency, etc.
+        await logTransaction(-itemCost);
+        await insertItemIntoActive(itemType, itemId);
         onModalClose(); // Close the modal after purchase attempt
+
+        await fetchCoinCount();
     };
 
      const _getTypedImageUrl = <T extends Record<string, any>>(item: T, nameKey: keyof T & string): ImageSourcePropType | undefined => {
@@ -163,7 +243,7 @@ export default function ShopScreen() {
             )}
             <ShopPopUp isVisible={isToyModalVisible} onClose={onModalClose} title='Choose a toy'>
                 <ItemList<Toy>
-                    itemType="toys" // Your actual table name for toys
+                    itemType="toys"
                     idKey="toy_id"
                     actionButtonText="Buy"
                     emptyMessage="No toys available at the moment."
@@ -175,7 +255,7 @@ export default function ShopScreen() {
             </ShopPopUp>
             <ShopPopUp isVisible={isCatModalVisible} onClose={onModalClose} title='Choose a cat'>
                 <ItemList<Cat>
-                    itemType="cats" // Your actual table name for cats
+                    itemType="cats"
                     idKey="cat_id"
                     actionButtonText="Adopt"
                     emptyMessage="No adoptable cats found at the moment."
@@ -187,7 +267,7 @@ export default function ShopScreen() {
             </ShopPopUp>
             <ShopPopUp isVisible={isRoomModalVisible} onClose={onModalClose} title='Choose a room'>
                 <ItemList<Room>
-                    itemType="rooms" // Your actual table name for rooms
+                    itemType="rooms"
                     idKey="room_id"
                     actionButtonText="Buy"
                     emptyMessage="No rooms available at the moment."
@@ -227,5 +307,23 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 5,
+    },
+});
+
+const headerStyles = StyleSheet.create({
+    coinContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 15,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 15,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)', // Slightly transparent background for the coin display
+    },
+    coinText: {
+        color: '#FFD700', // Gold color for coin text
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 5,
     },
 });
