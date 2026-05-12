@@ -1,4 +1,4 @@
-import { ImageSourcePropType, Text, View, StyleSheet, Alert, Pressable } from 'react-native';
+import { ImageSourcePropType, Text, View, StyleSheet, Alert, Pressable, ImageBackground } from 'react-native';
 import { useState, useLayoutEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
@@ -18,6 +18,8 @@ export default function ShopScreen() {
     const navigation = useNavigation();
     const { fetchCurrentCoinCount } = useShopDbActions();
     const { handlePurchase } = useShopPurchaseActions();
+
+    const backgroundImage = require('../../assets/artwork/ShopBackground.jpg');
 
     const [coinCount, setCoinCount] = useState<number>(0);
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
@@ -136,69 +138,83 @@ export default function ShopScreen() {
     );
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Adopt cats, build rooms and purchase items for your pets!</Text>
-            {showPurchaseNudge ? (
-                <View style={styles.optionsContainer}>
-                    <View style={styles.optionsRow}>
-                        <IconButton icon="chevron-back" label="Back" onPress={onReset} />
-                        <CircleButton onPress={onConfirmToyPurchase} />
-                        <CircleButton onPress={onConfirmCatPurchase} />
-                        <CircleButton onPress={onConfirmRoomPurchase} />
+        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
+            <View style={styles.container}>
+                <Text style={styles.text}>Adopt cats, build rooms and purchase items for your pets!</Text>
+                <View style={styles.streetRow}>
+                    <View style={styles.box}>
+                        <ImageBackground source={require('../../assets/artwork/BuildARoom.png')} style={styles.background} resizeMode="contain">
+                            <Button label="Build a Room" onPress={() => setIsRoomModalVisible(true)} />
+                        </ImageBackground>
+                    </View>
+                    <View style={styles.box}>
+                        <ImageBackground source={require('../../assets/artwork/AdoptACat.png')} style={styles.background} resizeMode="contain">
+                            <Button label="Adopt a Cat" onPress={() => setIsCatModalVisible(true)} />
+                        </ImageBackground>
+                    </View>
+                    <View style={styles.box}>
+                        <ImageBackground source={require('../../assets/artwork/BuyAToy.png')} style={styles.background} resizeMode="contain">
+                            <Button label="Buy a Toy" onPress={() => setIsToyModalVisible(true)} />
+                        </ImageBackground>
                     </View>
                 </View>
-            ) : (
-                <View style={styles.footerContainer}>
-                    <Button label="Adopt a Cat" onPress={() => setIsCatModalVisible(true)} />
-                    <Button label="Buy a toy" onPress={() => setIsToyModalVisible(true)}/>
-                    <Button label="Buy a room" onPress={() => setIsRoomModalVisible(true)} />
-                </View>
-
-            )}
-            <ShopPopUp isVisible={isToyModalVisible} onClose={onModalClose} title='Choose a toy'>
-                <ItemList<Toy>
-                    itemType="buyable_toys"
-                    idKey="toy_id"
-                    actionButtonText="Buy"
-                    emptyMessage="No toys available at the moment."
-                    loadingMessage="Loading toys..."
-                    onItemAction={onPurchase}
-                    getImageUrl={getToyImageUrl}
-                    renderItemContent={renderToyContent}
-                />
-            </ShopPopUp>
-            <ShopPopUp isVisible={isCatModalVisible} onClose={onModalClose} title='Choose a cat'>
-                <ItemList<Cat>
-                    itemType="buyable_cats"
-                    idKey="cat_id"
-                    actionButtonText="Adopt"
-                    emptyMessage="No adoptable cats found at the moment."
-                    loadingMessage="Loading adoptable cats..."
-                    onItemAction={onPurchase}
-                    getImageUrl={getCatImageUrl}
-                    renderItemContent={renderCatContent}
-                />
-            </ShopPopUp>
-            <ShopPopUp isVisible={isRoomModalVisible} onClose={onModalClose} title='Choose a room'>
-                <ItemList<Room>
-                    itemType="buyable_rooms"
-                    idKey="room_id"
-                    actionButtonText="Buy"
-                    emptyMessage="No rooms available at the moment."
-                    loadingMessage="Loading rooms..."
-                    onItemAction={onPurchase}
-                    getImageUrl={getRoomImageUrl}
-                    renderItemContent={renderRoomContent}
-                />
-            </ShopPopUp>
-        </View>
+                <ShopPopUp isVisible={isToyModalVisible} onClose={onModalClose} title='Choose a toy'>
+                    <ItemList<Toy>
+                        itemType="buyable_toys"
+                        idKey="toy_id"
+                        actionButtonText="Buy"
+                        emptyMessage="No toys available at the moment."
+                        loadingMessage="Loading toys..."
+                        onItemAction={onPurchase}
+                        getImageUrl={getToyImageUrl}
+                        renderItemContent={renderToyContent}
+                    />
+                </ShopPopUp>
+                <ShopPopUp isVisible={isCatModalVisible} onClose={onModalClose} title='Choose a cat'>
+                    <ItemList<Cat>
+                        itemType="buyable_cats"
+                        idKey="cat_id"
+                        actionButtonText="Adopt"
+                        emptyMessage="No adoptable cats found at the moment."
+                        loadingMessage="Loading adoptable cats..."
+                        onItemAction={onPurchase}
+                        getImageUrl={getCatImageUrl}
+                        renderItemContent={renderCatContent}
+                    />
+                </ShopPopUp>
+                <ShopPopUp isVisible={isRoomModalVisible} onClose={onModalClose} title='Choose a room'>
+                    <ItemList<Room>
+                        itemType="buyable_rooms"
+                        idKey="room_id"
+                        actionButtonText="Buy"
+                        emptyMessage="No rooms available at the moment."
+                        loadingMessage="Loading rooms..."
+                        onItemAction={onPurchase}
+                        getImageUrl={getRoomImageUrl}
+                        renderItemContent={renderRoomContent}
+                    />
+                </ShopPopUp>
+            </View>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    box: {
+        flex: 1, // Each box takes equal space
+        height: '100%', // Make boxes fill the parent row's height
+        justifyContent: 'center', // Center text vertically
+        alignItems: 'center', // Center text horizontally
+        borderWidth: 1,
+        borderColor: '#ccc',
+    },
     container: {
         flex: 1,
-        backgroundColor: '#25292e',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -213,6 +229,16 @@ const styles = StyleSheet.create({
     optionsRow: {
         alignItems: 'center',
         flexDirection: 'row',
+    },
+    streetRow: {
+        flexDirection: 'row', // This is the key for side-by-side
+        justifyContent: 'space-between', // Distributes space evenly, or 'center', 'flex-start', 'flex-end', 'space-around'
+        alignItems: 'center', // Aligns children vertically within the row: 'flex-start', 'center', 'flex-end', 'stretch' (default)
+        height: 100, // Give the row a specific height for demonstration
+        backgroundColor: '#e0e0e0',
+        borderRadius: 8,
+        overflow: 'hidden', // Ensures inner box corners are clipped if border-radius is set
+        marginBottom: 20,
     },
     text: {
         color: '#fff',

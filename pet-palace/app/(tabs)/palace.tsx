@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, FlatList, Dimensions, Image } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Dimensions, Image, ImageBackground } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useDatabaseItems } from '../../src/hooks/useDbActions';
@@ -7,6 +7,7 @@ import { ActiveCat, ActiveToy, ActiveRoom } from '../../src/types/db';
 import { imageSources } from '../../src/utils/imageMap';
 
 const { width } = Dimensions.get('window');
+const backgroundImage = require('../../assets/artwork/PalaceBackground.jpg');
 
 // build list of active rooms with their associated cats and toys
 const useActiveRoomsWithDetails = () => {
@@ -89,17 +90,24 @@ const RoomItem = ({ item }: { item: ActiveRoomWithDetails }) => {
 export default function RoomsScreen() {
     const roomsWithDetails = useActiveRoomsWithDetails();
     return (
-        <FlatList
-            data={roomsWithDetails}
-            renderItem={({ item }) => <RoomItem item={item} />}
-            keyExtractor={(item) => item.active_room_id.toString()}
-            contentContainerStyle={styles.flatListContent}
-            showsVerticalScrollIndicator={false}
-        />
+        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
+            <FlatList
+                data={roomsWithDetails}
+                renderItem={({ item }) => <RoomItem item={item} />}
+                keyExtractor={(item) => item.active_room_id.toString()}
+                contentContainerStyle={styles.flatListContent}
+                showsVerticalScrollIndicator={false}
+            />
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   flatListContent: {
     padding: '5%', // Padding around the entire list
     backgroundColor: '#fff', // White background for the screen
