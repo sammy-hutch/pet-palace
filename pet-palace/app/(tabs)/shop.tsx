@@ -19,7 +19,7 @@ export default function ShopScreen() {
     const { fetchCurrentCoinCount } = useShopDbActions();
     const { handlePurchase } = useShopPurchaseActions();
 
-    const backgroundImage = require('../../assets/artwork/ShopBackground.jpg');
+    const backgroundImage = require('../../assets/images/artwork/ShopBackground.png');
 
     const [coinCount, setCoinCount] = useState<number>(0);
     const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
@@ -140,20 +140,19 @@ export default function ShopScreen() {
     return (
         <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
             <View style={styles.container}>
-                <Text style={styles.text}>Adopt cats, build rooms and purchase items for your pets!</Text>
                 <View style={styles.streetRow}>
                     <View style={styles.box}>
-                        <ImageBackground source={require('../../assets/artwork/BuildARoom.png')} style={styles.background} resizeMode="contain">
+                        <ImageBackground source={require('../../assets/images/artwork/BuildARoom.png')} style={styles.background} resizeMode="contain">
                             <Button label="Build a Room" onPress={() => setIsRoomModalVisible(true)} />
                         </ImageBackground>
                     </View>
                     <View style={styles.box}>
-                        <ImageBackground source={require('../../assets/artwork/AdoptACat.png')} style={styles.background} resizeMode="contain">
+                        <ImageBackground source={require('../../assets/images/artwork/AdoptACat.png')} style={styles.background} resizeMode="contain">
                             <Button label="Adopt a Cat" onPress={() => setIsCatModalVisible(true)} />
                         </ImageBackground>
                     </View>
                     <View style={styles.box}>
-                        <ImageBackground source={require('../../assets/artwork/BuyAToy.png')} style={styles.background} resizeMode="contain">
+                        <ImageBackground source={require('../../assets/images/artwork/BuyAToy.png')} style={styles.background} resizeMode="contain">
                             <Button label="Buy a Toy" onPress={() => setIsToyModalVisible(true)} />
                         </ImageBackground>
                     </View>
@@ -210,8 +209,6 @@ const styles = StyleSheet.create({
         height: '100%', // Make boxes fill the parent row's height
         justifyContent: 'center', // Center text vertically
         alignItems: 'center', // Center text horizontally
-        borderWidth: 1,
-        borderColor: '#ccc',
     },
     container: {
         flex: 1,
@@ -235,7 +232,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between', // Distributes space evenly, or 'center', 'flex-start', 'flex-end', 'space-around'
         alignItems: 'center', // Aligns children vertically within the row: 'flex-start', 'center', 'flex-end', 'stretch' (default)
         height: 100, // Give the row a specific height for demonstration
-        backgroundColor: '#e0e0e0',
         borderRadius: 8,
         overflow: 'hidden', // Ensures inner box corners are clipped if border-radius is set
         marginBottom: 20,

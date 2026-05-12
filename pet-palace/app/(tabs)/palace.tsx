@@ -7,7 +7,7 @@ import { ActiveCat, ActiveToy, ActiveRoom } from '../../src/types/db';
 import { imageSources } from '../../src/utils/imageMap';
 
 const { width } = Dimensions.get('window');
-const backgroundImage = require('../../assets/artwork/PalaceBackground.jpg');
+const backgroundImage = require('../../assets/images/artwork/PalaceBackground.png');
 
 // build list of active rooms with their associated cats and toys
 const useActiveRoomsWithDetails = () => {
