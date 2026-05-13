@@ -1,5 +1,5 @@
 import * as SQLite from "expo-sqlite";
-import { create_statements, init_data } from "./databaseQueries";
+import { create_statements, fetch_latest_log, init_data, insert_log, update_cats_stats } from "./databaseQueries";
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -18,7 +18,8 @@ const init_load_tables = [
     "cats_fact",
     "toys_fact",
     "rooms_fact",
-    "transaction_history"
+    "transaction_history",
+    "activity_log"
 ];
 
 export async function initDatabase() {
@@ -45,6 +46,23 @@ export async function initDatabase() {
                 await db.runAsync(initStatement);
                 console.log(`Initial data inserted into ${table}.`);
             }
+        }
+    }
+
+    // iterate through dates from latest log date to today, and update cat stats
+    const latestLogResult: { log_date: string; log_type: string } | null = await db.getFirstAsync(fetch_latest_log, ['cat_stats_update']);
+    console.log("Latest log entry for cat_stats_update:", latestLogResult);
+    const latestLogDate = latestLogResult ? new Date(latestLogResult.log_date) : null;
+    const today = new Date();
+    if (latestLogDate) {
+        let currentDate = new Date(latestLogDate);
+        currentDate.setDate(currentDate.getDate() + 1);
+
+        while (currentDate <= today) {
+            await db.runAsync(update_cats_stats);
+            await db.runAsync(insert_log, ['cat_stats_update']);
+            console.log(`Cat stats updated for date: ${currentDate.toISOString().split('T')[0]}`);
+            currentDate.setDate(currentDate.getDate() + 1);
         }
     }
 

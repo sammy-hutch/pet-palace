@@ -122,6 +122,14 @@ export const fetch_empty_active_rooms = `
     ;`
 ;
 
+export const fetch_latest_log = `
+    SELECT log_date, log_type 
+    FROM activity_log 
+    WHERE log_type = ?
+    ORDER BY log_date DESC 
+    LIMIT 1;
+`;
+
 export const init_data: Record<string, string> = {
     "cats_fact": `INSERT INTO cats_fact (cat_name, cat_cost, preferred_toy_id, preferred_room_id) VALUES
         ('Sissi', 100, 1, 1),
@@ -131,19 +139,25 @@ export const init_data: Record<string, string> = {
         ('LP', 100, 5, 5);`,
     "toys_fact": `INSERT INTO toys_fact (toy_name, toy_cost, enrichment_type, enrichment_value) VALUES
         ('Ball', 10, 'happiness', 5),
-        ('Scratching Post', 20, 'happiness', 10),
-        ('Yarn', 15, 'happiness', 7),
-        ('Feather Wand', 12, 'happiness', 6),
-        ('Catnip Mouse', 8, 'happiness', 4);`,
+        ('Scratching Post', 20, 'happiness', 5),
+        ('Yarn', 15, 'happiness', 5),
+        ('Feather Wand', 12, 'happiness', 5),
+        ('Catnip Mouse', 8, 'happiness', 5);`,
     "rooms_fact": `INSERT INTO rooms_fact (room_name, room_cost, enrichment_type, enrichment_value) VALUES
-        ('Pink Room', 50, 'happiness', 10),
-        ('Cabin Room', 40, 'happiness', 8),
-        ('Cosy Room', 30, 'happiness', 6),
-        ('Plant Room', 20, 'happiness', 4),
-        ('Garden', 60, 'happiness', 12);`,
+        ('Pink Room', 50, 'health', 3),
+        ('Cabin Room', 40, 'health', 3),
+        ('Cosy Room', 30, 'health', 3),
+        ('Plant Room', 20, 'health', 3),
+        ('Garden', 60, 'health', 3);`,
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
-        (CURRENT_TIMESTAMP, 100, 100);`
+        (CURRENT_TIMESTAMP, 100, 100);`,
+    "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
+        ('2026-05-10', 'cat_stats_update');`
 };
+
+export const insert_log = `
+    INSERT INTO activity_log (log_date, log_type) VALUES (CURRENT_DATE, ?);
+`
 
 export const insert_item_into_active_cats = `
     INSERT INTO active_cats (cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id)
@@ -164,3 +178,18 @@ export const insert_transaction = `
     INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) 
     VALUES (CURRENT_TIMESTAMP, ?, (SELECT running_balance FROM transaction_history ORDER BY transaction_datetime DESC LIMIT 1) + ?);
     `;
+
+export const update_cats_stats = `
+    UPDATE active_cats
+    SET happiness = MAX(0, (
+            happiness 
+            - 10 
+            + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id), 0)
+        )),
+        health = MAX(0, (
+            health 
+            - 5
+            + COALESCE((SELECT enrichment_value FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0)
+        ))
+    WHERE active_cat_id = ?;
+`;

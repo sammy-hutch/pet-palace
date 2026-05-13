@@ -143,17 +143,17 @@ export default function ShopScreen() {
                 <View style={styles.streetRow}>
                     <View style={styles.box}>
                         <ImageBackground source={require('../../assets/images/artwork/BuildARoom.png')} style={styles.background} resizeMode="contain">
-                            <Button label="Build a Room" onPress={() => setIsRoomModalVisible(true)} />
+                            <Button label="..." onPress={() => setIsRoomModalVisible(true)} />
                         </ImageBackground>
                     </View>
                     <View style={styles.box}>
                         <ImageBackground source={require('../../assets/images/artwork/AdoptACat.png')} style={styles.background} resizeMode="contain">
-                            <Button label="Adopt a Cat" onPress={() => setIsCatModalVisible(true)} />
+                            <Button label="..." onPress={() => setIsCatModalVisible(true)} />
                         </ImageBackground>
                     </View>
                     <View style={styles.box}>
                         <ImageBackground source={require('../../assets/images/artwork/BuyAToy.png')} style={styles.background} resizeMode="contain">
-                            <Button label="Buy a Toy" onPress={() => setIsToyModalVisible(true)} />
+                            <Button label="..." onPress={() => setIsToyModalVisible(true)} />
                         </ImageBackground>
                     </View>
                 </View>
