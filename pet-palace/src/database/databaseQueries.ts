@@ -152,7 +152,16 @@ export const init_data: Record<string, string> = {
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
         (CURRENT_TIMESTAMP, 100, 100);`,
     "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
-        ('2026-05-10', 'cat_stats_update');`
+        ('2026-05-10', 'cat_stats_update');`,
+    "active_cats": `INSERT INTO active_cats (cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id) VALUES
+        (1, 'Sissi', 1, 50, 50, 80, 90, 1, 1),
+        (2, 'Max', 2, 60, 60, 70, 80, 2, 2);`,
+    "active_toys": `INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value) VALUES
+        (1, 'Ball', 1, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 2, 0, 0, 'happiness', 5);`,
+    "active_rooms": `INSERT INTO active_rooms (room_id, room_name, enrichment_type, enrichment_value) VALUES
+        (1, 'Pink Room', 'health', 3),
+        (2, 'Cabin Room', 'health', 3);`
 };
 
 export const insert_log = `
@@ -192,4 +201,10 @@ export const update_cats_stats = `
             + COALESCE((SELECT enrichment_value FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0)
         ))
     WHERE active_cat_id = ?;
+`;
+
+export const update_daily_degrade = `
+    UPDATE active_cats
+    SET happiness = MAX(0, happiness - 10),
+        health = MAX(0, health - 5);
 `;

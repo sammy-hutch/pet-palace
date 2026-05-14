@@ -18,7 +18,7 @@ const useActiveRoomsWithDetails = () => {
   // console.log('useActiveRoomsWithDetails: activeRooms count:', activeRooms.length);
   // console.log('useActiveRoomsWithDetails: activeRooms:', activeRooms);
   // console.log('useActiveRoomsWithDetails: activeCats count:', activeCats.length);
-  // console.log('useActiveRoomsWithDetails: activeCats:', activeCats);
+  console.log('useActiveRoomsWithDetails: activeCats:', activeCats);
   // console.log('useActiveRoomsWithDetails: activeToys count:', activeToys.length);
   // console.log('useActiveRoomsWithDetails: activeToys:', activeToys);
 

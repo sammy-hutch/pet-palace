@@ -11,7 +11,7 @@ interface Item {
 }
 
 export default function LogbookScreen() {
-    const { db, isLoading, error } = useDatabase();
+    const { db, dbLoading, dbError } = useDatabase();
     const [items, setItems] = useState<Item[]>([]);
     const [newItemName, setNewItemName] = useState('');
     const [newItemQuantity, setNewItemQuantity] = useState('');
@@ -27,10 +27,10 @@ export default function LogbookScreen() {
     };
 
     useEffect(() => {
-        if (!isLoading && db) {
+        if (!dbLoading && db) {
             fetchItems(db);
         }
-    }, [db, isLoading]);
+    }, [db, dbLoading]);
 
     const addItem = async () => {
         if (!db) return;
@@ -58,7 +58,7 @@ export default function LogbookScreen() {
         }
     };
 
-    if (isLoading) {
+    if (dbLoading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Text>Loading database...</Text>
@@ -66,10 +66,10 @@ export default function LogbookScreen() {
         );
     }
 
-    if (error) {
+    if (dbError) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>Error loading database: {error.message}</Text>
+                <Text>Error loading database: {dbError.message}</Text>
             </View>
         );
     }
