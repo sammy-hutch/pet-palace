@@ -97,8 +97,7 @@ const RoomItem = ({ item }: { item: ActiveRoomWithDetails }) => {
         }
 
         const left = (child.position_x / 100) * roomImageDimensions.width - (itemWidth / 2);
-        const bottomPositionRelativeToParentTop = (child.y_position / 100) * roomImageDimensions.height;
-        const top = bottomPositionRelativeToParentTop - itemHeight;
+        const top = (child.position_y / 100) * roomImageDimensions.height - (itemHeight / 2);
 
         const clampedLeft = Math.max(0, Math.min(left, roomImageDimensions.width - itemWidth));
         const clampedTop = Math.max(0, Math.min(top, roomImageDimensions.height - itemHeight));
