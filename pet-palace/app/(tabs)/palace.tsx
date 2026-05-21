@@ -149,9 +149,9 @@ const RoomItem = ({ item }: { item: ActiveRoomWithDetails }) => {
                 </View>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
                     <Ionicons name="happy-outline" size={styles.catInfoText.fontSize} color="gold" />
-                    <Text style={styles.catInfoText}>{item.cat?.happiness}  </Text>
+                    <Text style={styles.catInfoText}>{item.cat?.happiness}%  </Text>
                     <Ionicons name="heart" size={styles.catInfoText.fontSize} color="red" />
-                    <Text style={styles.catInfoText}>{item.cat?.health}</Text>
+                    <Text style={styles.catInfoText}>{item.cat?.health}%</Text>
                 </View>
             </View>
         </View>

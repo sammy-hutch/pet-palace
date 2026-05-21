@@ -1,5 +1,5 @@
 import * as SQLite from "expo-sqlite";
-import { create_statements, fetch_items, fetch_latest_log, init_data, insert_log, update_cats_stats, update_daily_degrade } from "./databaseQueries";
+import { create_statements, fetch_items, fetch_latest_log, init_data, insert_log, update_daily_degrade, update_daily_upgrade } from "./databaseQueries";
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -7,6 +7,7 @@ const all_tables = [
     "cats_fact",
     "toys_fact",
     "rooms_fact",
+    "activities_facts",
     "active_cats",
     "active_rooms",
     "active_toys",
@@ -18,6 +19,7 @@ const init_load_tables = [
     "cats_fact",
     "toys_fact",
     "rooms_fact",
+    "activities_facts",
     "transaction_history",
     "activity_log",
     "active_rooms",
@@ -62,8 +64,8 @@ export async function initDatabase() {
         currentDate.setDate(currentDate.getDate() + 1);
 
         while (currentDate <= today) {
-            // await db.runAsync(update_cats_stats);
             await db.runAsync(update_daily_degrade);
+            await db.runAsync(update_daily_upgrade);
             await db.runAsync(insert_log, ['cat_stats_update']);
             console.log(`Cat stats updated for date: ${currentDate.toISOString().split('T')[0]}`);
             let result = await db.getAllAsync(fetch_items['active_cats']);

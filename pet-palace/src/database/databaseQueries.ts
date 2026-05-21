@@ -24,6 +24,14 @@ export const create_statements: Record<string, string> = {
         enrichment_type TEXT NOT NULL,
         enrichment_value INTEGER NOT NULL
     );`,
+    "activities_facts": `CREATE TABLE IF NOT EXISTS activities_facts (
+        activity_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        activity_name TEXT NOT NULL,
+        happiness_effect INTEGER NOT NULL,
+        health_effect INTEGER NOT NULL,
+        coin_effect INTEGER NOT NULL,
+        limited BOOLEAN NOT NULL DEFAULT 1
+    );`,
     "active_cats": `CREATE TABLE IF NOT EXISTS active_cats (
         active_cat_id INTEGER PRIMARY KEY AUTOINCREMENT,
         cat_id INTEGER NOT NULL,
@@ -144,11 +152,17 @@ export const init_data: Record<string, string> = {
         ('Feather Wand', 12, 'happiness', 5),
         ('Catnip Mouse', 8, 'happiness', 5);`,
     "rooms_fact": `INSERT INTO rooms_fact (room_name, room_cost, enrichment_type, enrichment_value) VALUES
-        ('Pink Room', 50, 'health', 3),
-        ('Cabin Room', 40, 'health', 3),
-        ('Cosy Room', 30, 'health', 3),
-        ('Plant Room', 20, 'health', 3),
-        ('Garden', 60, 'health', 3);`,
+        ('Pink Room', 100, 'health', 3),
+        ('Cabin Room', 100, 'health', 3),
+        ('Cosy Room', 100, 'health', 3),
+        ('Plant Room', 100, 'health', 3),
+        ('Garden', 100, 'health', 3);`,
+    "activities_facts": `INSERT INTO activities_facts (activity_name, happiness_effect, health_effect, coin_effect, limited) VALUES
+        ('Excercise', 0, 5, 1, 0),
+        ('Creative Writing / Journaling', 5, 0, 1, 0),
+        ('Duolingo', 5, 0, 1, 1),
+        ('Earning Money', 0, 0, 1, 0),
+        ('House Clean', 0, 5, 1, 1);`,
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
         (CURRENT_TIMESTAMP, 100, 100);`,
     "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
@@ -188,23 +202,14 @@ export const insert_transaction = `
     VALUES (CURRENT_TIMESTAMP, ?, (SELECT running_balance FROM transaction_history ORDER BY transaction_datetime DESC LIMIT 1) + ?);
     `;
 
-export const update_cats_stats = `
-    UPDATE active_cats
-    SET happiness = MAX(0, (
-            happiness 
-            - 10 
-            + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id), 0)
-        )),
-        health = MAX(0, (
-            health 
-            - 5
-            + COALESCE((SELECT enrichment_value FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0)
-        ))
-    WHERE active_cat_id = ?;
-`;
-
 export const update_daily_degrade = `
     UPDATE active_cats
     SET happiness = MAX(0, happiness - 10),
         health = MAX(0, health - 5);
+`;
+
+export const update_daily_upgrade = `
+    UPDATE active_cats
+    SET happiness = MAX(0, happiness + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id), 0)),
+        health = MAX(0, health + COALESCE((SELECT enrichment_value FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0));
 `;
