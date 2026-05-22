@@ -1,104 +1,82 @@
 // example code for database interaction, needs heavy modification
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, FlatList, TextInput, Alert, StyleSheet } from 'react-native';
-import { useDatabase } from '@/src/database/DatabaseContext';
-import * as SQLite from 'expo-sqlite';
 
-interface Item {
-    cat_id: number;
-    cat_name: string;
-    cat_cost: number;
-}
+import { useDatabaseItems, UseLogbookDbActions } from '../../src/hooks/useDbActions';
+import { ActiveCat, Activity } from '../../src/types/db';
 
 export default function LogbookScreen() {
-    const { db, dbLoading, dbError } = useDatabase();
-    const [items, setItems] = useState<Item[]>([]);
-    const [newItemName, setNewItemName] = useState('');
-    const [newItemQuantity, setNewItemQuantity] = useState('');
+    const { items: activities } = useDatabaseItems<Activity>('activities');
+    const { items: activeCats } = useDatabaseItems<ActiveCat>('active_cats');
+    const { logActivity, logTransaction, updateCatStats } = UseLogbookDbActions();
 
-    const fetchItems = async (database: SQLite.SQLiteDatabase) => {
+    const handleActivityPress = async (activity: Activity) => {
+        console.log(`Activity: ${activity.activity_name}`);
+        console.log(`Happiness Effect: ${activity.happiness_effect}`);
+        console.log(`Health Effect: ${activity.health_effect}`);
+        console.log(`Coin Effect: ${activity.coin_effect}`);
+        let availableHealthEffect = activity.health_effect;
+        let availableHappinessEffect = activity.happiness_effect;
+        let availableCoinEffect = activity.coin_effect;
+        
         try {
-            const result = await database.getAllAsync<Item>('SELECT cat_id, cat_name, cat_cost FROM cats_fact');
-            setItems(result);
-        } catch (e) {
-            console.error("Failed to fetch items:", e);
-            Alert.alert("Error", "Failed to load items.");
+            if (!activity.available) {
+                Alert.alert('Activity Unavailable', 'This activity has already been completed today, and can only be logged once a day.');
+                return;
+            }
+            // add happiness and health to cats, with excess turning into coins
+            if (availableHealthEffect > 0) {
+                let catsWithHealthBelow100 = activeCats.filter(cat => cat.health < 100);
+                for (let cat of catsWithHealthBelow100) {
+                    if (availableHealthEffect <= 0) {
+                        break;
+                    }
+                    const healthEffectToApply = Math.min(availableHealthEffect, 100 - cat.health);
+                    await updateCatStats(cat.active_cat_id, 'health', healthEffectToApply);
+                    availableHealthEffect -= healthEffectToApply;
+                }
+                if (availableHealthEffect > 0) {
+                    availableCoinEffect += 1;
+                    availableHealthEffect = 0;
+                }
+            }
+            if (availableHappinessEffect > 0) {
+                let catsWithHappinessBelow100 = activeCats.filter(cat => cat.happiness < 100);
+                for (let cat of catsWithHappinessBelow100) {
+                    if (availableHappinessEffect <= 0) {
+                        break;
+                    }
+                    const happinessEffectToApply = Math.min(availableHappinessEffect, 100 - cat.happiness);
+                    await updateCatStats(cat.active_cat_id, 'happiness', happinessEffectToApply);
+                    availableHappinessEffect -= happinessEffectToApply;
+                }
+                if (availableHappinessEffect > 0) {
+                    availableCoinEffect += 1;
+                    availableHappinessEffect = 0;
+                }
+            }
+            // add coins to transaction history
+            await logTransaction(availableCoinEffect);
+            // add activity to activity log
+            await logActivity(activity.activity_name);
+            
+            Alert.alert('Activity Completed', `You completed: ${activity.activity_name}`);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to log activity. Please try again.');
         }
     };
-
-    useEffect(() => {
-        if (!dbLoading && db) {
-            fetchItems(db);
-        }
-    }, [db, dbLoading]);
-
-    const addItem = async () => {
-        if (!db) return;
-        if (!newItemName.trim() || !newItemQuantity.trim()) {
-            Alert.alert("Error", "Please enter both name and quantity.");
-            return;
-        }
-        const quantityNum = parseInt(newItemQuantity, 10);
-        if (isNaN(quantityNum)) {
-            Alert.alert("Error", "Quantity must be a number.");
-            return;
-        }
-
-        try {
-            await db.runAsync(`INSERT INTO active_cats 
-                (cat_id, cat_name, position_x, position_y, 
-                happiness, health, preferred_toy_id, preferred_room_id) 
-                VALUES (?, ?, 80, 90, 100, 100, 21, 4)`, quantityNum, newItemName);
-            setNewItemName('');
-            setNewItemQuantity('');
-            fetchItems(db); // Re-fetch items to update the list
-        } catch (e) {
-            console.error("Failed to add item:", e);
-            Alert.alert("Error", "Failed to add item.");
-        }
-    };
-
-    if (dbLoading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>Loading database...</Text>
-            </View>
-        );
-    }
-
-    if (dbError) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>Error loading database: {dbError.message}</Text>
-            </View>
-        );
-    }
 
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <Text style={{ fontSize: 24, marginBottom: 20 }}>Logbook</Text>
-
-            <TextInput
-                placeholder="Item Name"
-                value={newItemName}
-                onChangeText={setNewItemName}
-                style={{ borderWidth: 1, padding: 10, marginBottom: 10 }}
-            />
-            <TextInput
-                placeholder="Quantity"
-                value={newItemQuantity}
-                onChangeText={setNewItemQuantity}
-                keyboardType="numeric"
-                style={{ borderWidth: 1, padding: 10, marginBottom: 20 }}
-            />
-            <Button title="Add Item" onPress={addItem} />
-
-            <Text style={{ fontSize: 20, marginTop: 30, marginBottom: 10 }}>Items:</Text>
+        <View style={styles.container}>
+            <Text style={styles.text}>Activity Logbook</Text>
             <FlatList
-                data={items}
-                keyExtractor={(item) => item.cat_id.toString()}
+                data={activities}
+                keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
-                    <Text>{item.cat_name} (x{item.cat_cost})</Text>
+                    <View style={{ marginVertical: 10 }}>
+                        <Text style={styles.text}>{item.activity_name}</Text>
+                        <Button title="Complete Activity" onPress={() => handleActivityPress(item)} />
+                    </View>
                 )}
             />
         </View>

@@ -107,6 +107,12 @@ export const fetch_items: Record<string, string> = {
         SELECT room_id, room_name, room_cost, enrichment_type, enrichment_value
         FROM rooms_fact;
     `,
+    "activities": `
+        SELECT activity_name, happiness_effect, health_effect, coin_effect, limited,
+            CASE WHEN limited = 1 AND log_date = CURRENT_DATE THEN 0 ELSE 1 END AS available
+        FROM activities_facts
+        LEFT JOIN activity_log ON activities_facts.activity_name = activity_log.log_type AND activity_log.log_date = CURRENT_DATE;
+    `,
     "active_cats": `
         SELECT active_cat_id, cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id
         FROM active_cats
@@ -161,7 +167,7 @@ export const init_data: Record<string, string> = {
         ('Excercise', 0, 5, 1, 0),
         ('Creative Writing / Journaling', 5, 0, 1, 0),
         ('Duolingo', 5, 0, 1, 1),
-        ('Earning Money', 0, 0, 1, 0),
+        ('Job', 0, 0, 1, 0),
         ('House Clean', 0, 5, 1, 1);`,
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
         (CURRENT_TIMESTAMP, 100, 100);`,
@@ -202,6 +208,18 @@ export const insert_transaction = `
     VALUES (CURRENT_TIMESTAMP, ?, (SELECT running_balance FROM transaction_history ORDER BY transaction_datetime DESC LIMIT 1) + ?);
     `;
 
+export const update_cat_happiness = `
+    UPDATE active_cats
+    SET happiness = MIN(100, happiness + ?)
+    WHERE active_cat_id = ?;
+`;
+
+export const update_cat_health = `
+    UPDATE active_cats
+    SET health = MIN(100, health + ?)
+    WHERE active_cat_id = ?;
+`;
+
 export const update_daily_degrade = `
     UPDATE active_cats
     SET happiness = MAX(0, happiness - 10),
@@ -210,6 +228,6 @@ export const update_daily_degrade = `
 
 export const update_daily_upgrade = `
     UPDATE active_cats
-    SET happiness = MAX(0, happiness + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id), 0)),
-        health = MAX(0, health + COALESCE((SELECT enrichment_value FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0));
+    SET happiness = MIN(100, happiness + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id), 0)),
+        health = MIN(100, health + COALESCE((SELECT enrichment_value FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0));
 `;

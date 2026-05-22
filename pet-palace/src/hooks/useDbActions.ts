@@ -7,8 +7,11 @@ import {
     insert_item_into_active_cats,
     insert_item_into_active_toys,
     insert_item_into_active_rooms,
+    insert_log,
     insert_transaction,
-    fetch_available_cats_for_toy
+    fetch_available_cats_for_toy,
+    update_cat_happiness,
+    update_cat_health,
 } from '../database/databaseQueries';
 import { GenericDbItem } from '../types/db';
 
@@ -186,3 +189,64 @@ export const useShopDbActions = () => {
         fetchEmptyActiveRooms,
     };
 };
+
+export const UseLogbookDbActions = () => {
+    const { db, triggerRefresh } = useDatabase();
+
+    const logActivity = useCallback(async (activityName: string) => {
+        if (!db) {
+            console.warn("Database not initialized yet. Cannot log activity.");
+            throw new Error("Database not ready for activity logging.");
+        }
+        try {
+            await db.runAsync(insert_log, activityName);
+            console.log(`Activity logged: ${activityName}`);
+            triggerRefresh('activity_log');
+        } catch (error) {
+            console.error("Failed to log activity:", error);
+            throw error;
+        }
+    }, [db, triggerRefresh]);
+
+    const logTransaction = useCallback(async (transactionValue: number) => {
+        if (!db) {
+            console.warn("Database not initialized yet. Cannot log transaction.");
+            throw new Error("Database not ready for transaction logging.");
+        }
+        try {
+            await db.runAsync(insert_transaction, transactionValue, transactionValue);
+            console.log(`Transaction logged: ${transactionValue}`);
+            triggerRefresh('transaction_history');
+        } catch (error) {
+            console.error("Failed to log transaction:", error);
+            throw error;
+        }
+    }, [db, triggerRefresh]);
+
+    const updateCatStats = useCallback(async (catId: number, effectType: string, effectValue: number) => {
+        if (!db) {
+            console.warn("Database not initialized yet. Cannot update cat stats.");
+            throw new Error("Database not ready for updating cat stats.");
+        }
+        try {
+            if (effectType === 'health') {
+                await db.runAsync(update_cat_health, effectValue, catId);
+            } else if (effectType === 'happiness') {
+                await db.runAsync(update_cat_happiness, effectValue, catId);
+            } else {
+                console.warn(`Invalid effect type: ${effectType}. Must be 'health' or 'happiness'.`);
+                throw new Error(`Invalid effect type: ${effectType}`);
+            }
+            triggerRefresh('active_cats');
+        } catch (error) {
+            console.error("Failed to update cat stats:", error);
+            throw error;
+        }
+    }, [db, triggerRefresh]);
+
+    return {
+        logActivity,
+        logTransaction,
+        updateCatStats,
+    };
+}

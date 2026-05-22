@@ -35,6 +35,15 @@ export interface ActiveToy extends GenericDbItem {
     enrichment_value: number;
 }
 
+export interface Activity extends GenericDbItem {
+    activity_name: string;
+    happiness_effect: number;
+    health_effect: number;
+    coin_effect: number;
+    limited: boolean;
+    available: boolean;
+}
+
 export interface Cat extends GenericDbItem {
     cat_id: number;
     cat_name: string;
