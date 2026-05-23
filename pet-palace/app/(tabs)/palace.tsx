@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, FlatList, Dimensions, Image, ImageBackground } 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { useDatabaseItems } from '../../src/hooks/useDbActions';
-import { ActiveCat, ActiveToy, ActiveRoom } from '../../src/types/db';
+import { ActiveCat, ActiveToy, ActiveRoom, RoomPosition } from '../../src/types/db';
 import { imageSources } from '../../src/utils/imageMap';
 
 const { width } = Dimensions.get('window');
@@ -31,13 +31,14 @@ const useActiveRoomsWithDetails = (): ActiveRoomWithDetails[] => {
     const { items: activeCats } = useDatabaseItems<ActiveCat>('active_cats');
     const { items: activeToys } = useDatabaseItems<ActiveToy>('active_toys');
     const { items: activeRooms } = useDatabaseItems<ActiveRoom>('active_rooms');
+    const { items: roomPositions } = useDatabaseItems<RoomPosition>('room_positions');
 
     // console.log('useActiveRoomsWithDetails: activeRooms count:', activeRooms.length);
     // console.log('useActiveRoomsWithDetails: activeRooms:', activeRooms);
     // console.log('useActiveRoomsWithDetails: activeCats count:', activeCats.length);
     console.log('useActiveRoomsWithDetails: activeCats:', activeCats);
     // console.log('useActiveRoomsWithDetails: activeToys count:', activeToys.length);
-    // console.log('useActiveRoomsWithDetails: activeToys:', activeToys);
+    console.log('useActiveRoomsWithDetails: activeToys:', activeToys);
 
     const roomsWithDetails = activeRooms.map(room => {
         const catInRoom = activeCats?.find(cat => cat.active_room_id === room.active_room_id);
@@ -52,6 +53,25 @@ const useActiveRoomsWithDetails = (): ActiveRoomWithDetails[] => {
             ...toy,
             _imageUrl: imageSources[toy.toy_name],
         }));
+
+        // update cat and toy positions based on available room_positions
+        const positionsForRoom = roomPositions.filter(pos => pos.room_id === room.room_id);
+        const usedPositionIds: number[] = [];
+        if (catWithImageDetails && positionsForRoom.length > 0) {
+            const randomPositionForCat = positionsForRoom[Math.floor(Math.random() * positionsForRoom.length)];
+            catWithImageDetails.position_x = randomPositionForCat.position_x;
+            catWithImageDetails.position_y = randomPositionForCat.position_y;
+            usedPositionIds.push(randomPositionForCat.position_id);
+        }
+        toysWithImageDetails.forEach(toy => {
+            const availablePositions = positionsForRoom.filter(pos => !usedPositionIds.includes(pos.position_id));
+            if (availablePositions.length > 0) {
+                const randomPositionForToy = availablePositions[Math.floor(Math.random() * availablePositions.length)];
+                toy.position_x = randomPositionForToy.position_x;
+                toy.position_y = randomPositionForToy.position_y;
+                usedPositionIds.push(randomPositionForToy.position_id);
+            }
+        });
 
         return {
             ...room,
@@ -80,7 +100,7 @@ const RoomItem = ({ item }: { item: ActiveRoomWithDetails }) => {
     }
 
     const CAT_SIZE_PERCENT = 0.20;
-    const TOY_SIZE_PERCENT = 0.12;
+    const TOY_SIZE_PERCENT = 0.10;
 
     const renderChildItem = (child: ActiveCatWithDetails | ActiveToyWithDetails, isCat: boolean) => {
         if (!child || !child._imageUrl || !roomImageDimensions.width || !roomImageDimensions.height) {
@@ -97,14 +117,18 @@ const RoomItem = ({ item }: { item: ActiveRoomWithDetails }) => {
         }
 
         const left = (child.position_x / 100) * roomImageDimensions.width - (itemWidth / 2);
-        const top = (child.position_y / 100) * roomImageDimensions.height - (itemHeight / 2);
+        const top = (child.position_y / 100) * roomImageDimensions.height - (itemHeight);
 
         const clampedLeft = Math.max(0, Math.min(left, roomImageDimensions.width - itemWidth));
         const clampedTop = Math.max(0, Math.min(top, roomImageDimensions.height - itemHeight));
 
+        const uniqueId = isCat 
+            ? (child as ActiveCatWithDetails).active_cat_id 
+            : (child as ActiveToyWithDetails).active_toy_id;
+
         return (
             <Image
-                key={`${isCat ? 'cat' : 'toy'}-${child.active_cat_id || child.active_toy_id}`}
+                key={`${isCat ? 'cat' : 'toy'}-${uniqueId}`}
                 source={child._imageUrl}
                 style={[
                     styles.childItem,

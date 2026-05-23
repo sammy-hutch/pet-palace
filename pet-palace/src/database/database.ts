@@ -12,6 +12,7 @@ const all_tables = [
     "active_rooms",
     "active_toys",
     "activity_log",
+    "room_positions",
     "transaction_history"
 ];
 
@@ -22,6 +23,7 @@ const init_load_tables = [
     "activities_facts",
     "transaction_history",
     "activity_log",
+    "room_positions",
     "active_rooms",
     "active_cats",
     "active_toys"

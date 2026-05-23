@@ -71,6 +71,13 @@ export const create_statements: Record<string, string> = {
         log_date DATE NOT NULL,
         log_type TEXT NOT NULL
     );`,
+    "room_positions": `CREATE TABLE IF NOT EXISTS room_positions (
+        position_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        room_id INTEGER NOT NULL,
+        position_x INTEGER NOT NULL,
+        position_y INTEGER NOT NULL,
+        FOREIGN KEY (room_id) REFERENCES rooms_fact(room_id)
+    );`,
     "transaction_history": `CREATE TABLE IF NOT EXISTS transaction_history (
         transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
         transaction_datetime DATETIME NOT NULL,
@@ -124,6 +131,10 @@ export const fetch_items: Record<string, string> = {
     "active_rooms": `
         SELECT active_room_id, room_id, room_name, enrichment_type, enrichment_value
         FROM active_rooms
+    `,
+    "room_positions": `
+        SELECT position_id, room_id, position_x, position_y
+        FROM room_positions
     `
 };
 
@@ -169,19 +180,35 @@ export const init_data: Record<string, string> = {
         ('Duolingo', 5, 0, 1, 1),
         ('Job', 0, 0, 1, 0),
         ('House Clean', 0, 5, 1, 1);`,
+    "room_positions": `INSERT INTO room_positions (room_id, position_x, position_y) VALUES
+        (1, 73, 80),(1, 30, 65),(1, 12, 83),(1, 50, 95),(1, 35, 28),(1, 90, 37),
+        (2, 50, 95),(2, 60, 55),(2, 80, 90),(2, 25, 75),(2, 35, 25),(2, 65, 25),
+        (3, 10, 95),(3, 40, 85),(3, 65, 75),(3, 85, 75),(3, 35, 35),(3, 75, 35),
+        (4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),
+        (5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50);`,
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
         (CURRENT_TIMESTAMP, 100, 100);`,
     "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
         ('2026-05-10', 'cat_stats_update');`,
     "active_cats": `INSERT INTO active_cats (cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id) VALUES
         (1, 'Sissi', 1, 50, 50, 80, 90, 1, 1),
-        (2, 'Max', 2, 60, 60, 70, 80, 2, 2);`,
+        (2, 'Max', 2, 60, 60, 70, 80, 2, 2),
+        (4, 'Larry', 3, 60, 60, 70, 80, 4, 4);`,
     "active_toys": `INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value) VALUES
         (1, 'Ball', 1, 0, 0, 'happiness', 5),
-        (2, 'Scratching Post', 2, 0, 0, 'happiness', 5);`,
+        (2, 'Scratching Post', 1, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 1, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 1, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 1, 0, 0, 'happiness', 5),
+        (1, 'Ball', 2, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 2, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 2, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 2, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 2, 0, 0, 'happiness', 5);`,
     "active_rooms": `INSERT INTO active_rooms (room_id, room_name, enrichment_type, enrichment_value) VALUES
         (1, 'Pink Room', 'health', 3),
-        (2, 'Cabin Room', 'health', 3);`
+        (2, 'Cabin Room', 'health', 3)
+        (3, 'Cosy Room', 'health', 3);`
 };
 
 export const insert_log = `

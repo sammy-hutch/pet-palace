@@ -68,4 +68,11 @@ export interface Room extends GenericDbItem {
     enrichment_value: number;
 }
 
+export interface RoomPosition extends GenericDbItem {
+    position_id: number;
+    room_id: number;
+    position_x: number;
+    position_y: number;
+}
+
 export type PurchasableItem = Cat | Toy | Room;
