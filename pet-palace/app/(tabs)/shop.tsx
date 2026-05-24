@@ -1,35 +1,24 @@
-import { ImageSourcePropType, Text, View, StyleSheet, Alert, Pressable, ImageBackground } from 'react-native';
+import { ImageSourcePropType, Text, View, StyleSheet, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useState, useLayoutEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import { useShopDbActions } from '../../src/hooks/useDbActions';
 import { useShopPurchaseActions } from '../../src/hooks/useShopPurchaseActions';
 import { Cat, Toy, Room, PurchasableItem } from '../../src/types/db';
-import { debug } from '../../src/utils/vars';
-
-import Button from '@/components/Button';
-import CircleButton from '@/components/CircleButton';
-import IconButton from '@/components/IconButton';
 import ItemList from '@/components/ItemList';
 import ShopPopUp from '@/components/ShopPopUp';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { imageSources } from '../../src/utils/imageMap';
 
 export default function ShopScreen() {
-    const navigation = useNavigation();
     const { fetchCurrentCoinCount } = useShopDbActions();
     const { handlePurchase } = useShopPurchaseActions();
 
     const backgroundImage = require('../../assets/images/artwork/ShopBackground.png');
 
     const [coinCount, setCoinCount] = useState<number>(0);
-    const [showPurchaseNudge, setShowPurchaseNudge] = useState<boolean>(false);
     const [isToyModalVisible, setIsToyModalVisible] = useState<boolean>(false);
     const [isCatModalVisible, setIsCatModalVisible] = useState<boolean>(false);
     const [isRoomModalVisible, setIsRoomModalVisible] = useState<boolean>(false);
-    const [pickedToy, setPickedToy] = useState<ImageSourcePropType | undefined>(undefined);
-    const [pickedCat, setPickedCat] = useState<ImageSourcePropType | undefined>(undefined);
-    const [pickedRoom, setPickedRoom] = useState<ImageSourcePropType | undefined>(undefined);
 
     const fetchCoinCount = useCallback(async () => {
         const count = await fetchCurrentCoinCount();
@@ -40,29 +29,6 @@ export default function ShopScreen() {
         fetchCoinCount();
     }, [fetchCoinCount]);
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            title: 'Shop',
-            headerShown: true,
-            headerRight: () => (
-                <View style={headerStyles.coinContainer}>
-                    <Ionicons name="cash-outline" size={20} color="#FFD700" />
-                    <Text style={headerStyles.coinText}>
-                        {coinCount !== null ? coinCount.toLocaleString() : 'Loading...'}
-                    </Text>
-                </View>
-            ),
-            headerStyle: {
-                backgroundColor: '#30363d',
-            },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-                fontWeight: 'bold',
-                fontSize: 20,
-            },
-        });
-    }, [navigation, coinCount]);
-
     const onPurchase = async (item: PurchasableItem) => {
         const success = await handlePurchase(item, coinCount);
         if (success) {
@@ -70,22 +36,6 @@ export default function ShopScreen() {
             await fetchCoinCount();
         }
     };
-
-    const onReset = () => {
-        setShowPurchaseNudge(false);
-    };
-
-    const onConfirmToyPurchase = () => {
-        setIsToyModalVisible(true);
-    };
-
-    const onConfirmCatPurchase = () => {
-        setIsCatModalVisible(true);
-    };
-
-    const onConfirmRoomPurchase = () => {
-        setIsRoomModalVisible(true);
-    }
 
     const onModalClose = () => {
         setIsToyModalVisible(false);
@@ -143,19 +93,19 @@ export default function ShopScreen() {
             <View style={styles.container}>
                 <View style={styles.streetRow}>
                     <View style={styles.box}>
-                        <ImageBackground source={require('../../assets/images/artwork/BuildARoom.png')} style={styles.background} resizeMode="contain">
-                            <Button label="..." onPress={() => setIsRoomModalVisible(true)} />
-                        </ImageBackground>
+                        <TouchableOpacity onPress={() => setIsRoomModalVisible(true)}>
+                            <Image source={require('../../assets/images/artwork/BuildARoom.png')} style={styles.background} resizeMode="contain" />
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.box}>
-                        <ImageBackground source={require('../../assets/images/artwork/AdoptACat.png')} style={styles.background} resizeMode="contain">
-                            <Button label="..." onPress={() => setIsCatModalVisible(true)} />
-                        </ImageBackground>
+                        <TouchableOpacity onPress={() => setIsCatModalVisible(true)}>
+                            <Image source={require('../../assets/images/artwork/AdoptACat.png')} style={styles.background} resizeMode="contain" />
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.box}>
-                        <ImageBackground source={require('../../assets/images/artwork/BuyAToy.png')} style={styles.background} resizeMode="contain">
-                            <Button label="..." onPress={() => setIsToyModalVisible(true)} />
-                        </ImageBackground>
+                        <TouchableOpacity onPress={() => setIsToyModalVisible(true)}>
+                            <Image source={require('../../assets/images/artwork/BuyAToy.png')} style={styles.background} resizeMode="contain" />
+                        </TouchableOpacity>
                     </View>
                 </View>
                 <ShopPopUp isVisible={isToyModalVisible} onClose={onModalClose} title='Choose a toy'>
@@ -206,10 +156,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     box: {
-        flex: 1, // Each box takes equal space
-        height: '100%', // Make boxes fill the parent row's height
-        justifyContent: 'center', // Center text vertically
-        alignItems: 'center', // Center text horizontally
+        flex: 1,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     container: {
         flex: 1,
@@ -229,12 +179,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     streetRow: {
-        flexDirection: 'row', // This is the key for side-by-side
-        justifyContent: 'space-between', // Distributes space evenly, or 'center', 'flex-start', 'flex-end', 'space-around'
-        alignItems: 'center', // Aligns children vertically within the row: 'flex-start', 'center', 'flex-end', 'stretch' (default)
-        height: 100, // Give the row a specific height for demonstration
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: 100,
         borderRadius: 8,
-        overflow: 'hidden', // Ensures inner box corners are clipped if border-radius is set
+        overflow: 'hidden',
         marginBottom: 20,
     },
     text: {
@@ -244,23 +194,5 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 5,
-    },
-});
-
-const headerStyles = StyleSheet.create({
-    coinContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginRight: 15,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 15,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)', // Slightly transparent background for the coin display
-    },
-    coinText: {
-        color: '#FFD700', // Gold color for coin text
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginLeft: 5,
     },
 });

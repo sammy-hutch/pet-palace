@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, FlatList, Dimensions, Image, ImageBackground } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Image, ImageBackground } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link } from "expo-router";
 
@@ -8,7 +8,6 @@ import { ActiveCat, ActiveToy, ActiveRoom, RoomPosition } from '../../src/types/
 import { imageSources } from '../../src/utils/imageMap';
 import { useInitialCatCheck } from "@/src/hooks/useInitialCatCheck";
 
-const { width } = Dimensions.get('window');
 const backgroundImage = require('../../assets/images/artwork/PalaceBackground.png');
 
 type ActiveCatWithDetails = ActiveCat & {
@@ -34,13 +33,6 @@ const useActiveRoomsWithDetails = (): ActiveRoomWithDetails[] => {
     const { items: activeToys } = useDatabaseItems<ActiveToy>('active_toys');
     const { items: activeRooms } = useDatabaseItems<ActiveRoom>('active_rooms');
     const { items: roomPositions } = useDatabaseItems<RoomPosition>('room_positions');
-
-    // console.log('useActiveRoomsWithDetails: activeRooms count:', activeRooms.length);
-    // console.log('useActiveRoomsWithDetails: activeRooms:', activeRooms);
-    // console.log('useActiveRoomsWithDetails: activeCats count:', activeCats.length);
-    console.log('useActiveRoomsWithDetails: activeCats:', activeCats);
-    // console.log('useActiveRoomsWithDetails: activeToys count:', activeToys.length);
-    console.log('useActiveRoomsWithDetails: activeToys:', activeToys);
 
     const roomsWithDetails = activeRooms.map(room => {
         const catInRoom = activeCats?.find(cat => cat.active_room_id === room.active_room_id);
@@ -82,9 +74,6 @@ const useActiveRoomsWithDetails = (): ActiveRoomWithDetails[] => {
             _imageUrl: imageSources[room.room_name],
         };
     });
-
-  // console.log('useActiveRoomsWithDetails: roomsWithDetails count:', roomsWithDetails.length);
-  // console.log('useActiveRoomsWithDetails: roomsWithDetails data:', roomsWithDetails); // Inspect the actual data
 
     return roomsWithDetails;
 };
@@ -245,25 +234,23 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     flatListContent: {
-        padding: '5%', // Padding around the entire list
-        backgroundColor: '#fff', // White background for the screen
+        padding: '5%',
     },
     roomContainer: {
-        marginBottom: 15, // Space between room blocks
-        borderWidth: 2, // Outer border
+        borderWidth: 2,
         borderColor: 'black',
-        padding: 4, // Space between outer and inner border
-        borderRadius: 8, // Rounded corners for the entire room container
-        overflow: 'hidden', // Ensures content respects borderRadius
+        padding: 4,
+        overflow: 'hidden',
+        backgroundColor: '#ccc',
     },
     catInfoBox: {
-        backgroundColor: '#EAEAEA', // Light gray background
+        backgroundColor: '#EAEAEA',
         borderColor: 'black',
-        borderTopWidth: 1, // Add a border at the top to separate from image
+        borderTopWidth: 1,
         flexDirection: 'row',
         paddingVertical: 2,
         paddingHorizontal: 4,
-        minHeight: 30, // Ensure a minimum height for the info box
+        minHeight: 30,
     },
     catInfoText: {
         fontSize: 16,

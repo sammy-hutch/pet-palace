@@ -97,6 +97,7 @@ modalContainer: {
   ...StyleSheet.absoluteFillObject,
   justifyContent: 'flex-end',
   zIndex: 10,
+  paddingTop: 60,
 },
 overlayBackground: {
   ...StyleSheet.absoluteFillObject,

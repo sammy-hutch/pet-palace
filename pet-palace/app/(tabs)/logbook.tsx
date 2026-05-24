@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, TextInput, Alert, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, FlatList, Alert, StyleSheet } from 'react-native';
 
 
 import { useDatabaseItems, UseLogbookDbActions } from '../../src/hooks/useDbActions';
@@ -95,11 +95,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#25292e',
         alignItems: 'center',
         justifyContent: 'center',
+        paddingTop: 40,
     },
     activityContainer: {
         marginVertical: 10,
         alignItems: 'center',
-        width: 250, // set a consistent width for items
+        width: 250,
     },
     text: {
         color: '#fff',
