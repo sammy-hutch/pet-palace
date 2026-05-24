@@ -1,6 +1,6 @@
-// example code for database interaction, needs heavy modification
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, TextInput, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, TextInput, Alert, StyleSheet } from 'react-native';
+
 
 import { useDatabaseItems, UseLogbookDbActions } from '../../src/hooks/useDbActions';
 import { ActiveCat, Activity } from '../../src/types/db';
@@ -74,8 +74,14 @@ export default function LogbookScreen() {
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                     <View style={{ marginVertical: 10 }}>
-                        <Text style={styles.text}>{item.activity_name}</Text>
-                        <Button title="Complete Activity" onPress={() => handleActivityPress(item)} />
+                        <TouchableOpacity 
+                            style={[
+                                styles.button,
+                                item.available ? styles.buttonAvailable : styles.buttonUnavailable
+                            ]}
+                            onPress={() => handleActivityPress(item)}>
+                            <Text style={styles.text}>{item.activity_name}</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
             />
@@ -90,7 +96,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    activityContainer: {
+        marginVertical: 10,
+        alignItems: 'center',
+        width: 250, // set a consistent width for items
+    },
     text: {
         color: '#fff',
+        marginBottom: 8,
+        fontSize: 16,
+    },
+    button: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+    },
+    buttonAvailable: {
+        backgroundColor: '#2196F3', // Your primary blue
+    },
+    buttonUnavailable: {
+        backgroundColor: '#555555', // Greyed-out state
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
     }
 });

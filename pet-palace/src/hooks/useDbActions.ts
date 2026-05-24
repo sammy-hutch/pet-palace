@@ -201,6 +201,7 @@ export const UseLogbookDbActions = () => {
         try {
             await db.runAsync(insert_log, activityName);
             console.log(`Activity logged: ${activityName}`);
+            triggerRefresh('activities');
             triggerRefresh('activity_log');
         } catch (error) {
             console.error("Failed to log activity:", error);

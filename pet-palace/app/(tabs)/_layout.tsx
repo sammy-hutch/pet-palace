@@ -20,10 +20,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -50,15 +47,6 @@ export default function TabLayout() {
           title: 'Shop',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'basket-sharp' : 'basket-outline'} color={color} size={24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'settings-sharp' : 'settings-outline'} color={color} size={24} />
           ),
         }}
       />

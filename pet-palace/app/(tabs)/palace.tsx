@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, FlatList, Dimensions, Image, ImageBackground } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Link } from "expo-router";
 
 import { useDatabaseItems } from '../../src/hooks/useDbActions';
 import { ActiveCat, ActiveToy, ActiveRoom, RoomPosition } from '../../src/types/db';
 import { imageSources } from '../../src/utils/imageMap';
+import { useInitialCatCheck } from "@/src/hooks/useInitialCatCheck";
 
 const { width } = Dimensions.get('window');
 const backgroundImage = require('../../assets/images/artwork/PalaceBackground.png');
@@ -184,9 +186,41 @@ const RoomItem = ({ item }: { item: ActiveRoomWithDetails }) => {
 
 // Main screen component
 export default function RoomsScreen() {
+    const { showFirstTimeSplash, isCheckingCats, catCheckError } = useInitialCatCheck();
     const roomsWithDetails = useActiveRoomsWithDetails();
+
+    if (isCheckingCats) {
+        return (
+            <View style={styles.container}>
+                <Text>Loading application data...</Text>
+            </View>
+        );
+    }
+
+    if (catCheckError) {
+        return (
+            <View style={styles.container}>
+                <Text style={{ color: 'red' }}>Error loading initial data: {catCheckError.message}</Text>
+                <Text>Please restart the app or contact support.</Text>
+            </View>
+        );
+    }
+
     return (
         <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
+
+            {showFirstTimeSplash && (
+                <View style={styles.textSection}>
+                    <Text style={styles.sectionTitle}>New to the app?</Text>
+                    <Text style={styles.sectionContent}>
+                        Looks like you don't have any cats yet. Want to go ahead and adopt your first cat?
+                    </Text>
+                    <Link href="./shop" style={styles.button}>
+                        Go to Shop
+                    </Link>
+                </View>
+            )}
+
             <FlatList
                 data={roomsWithDetails}
                 renderItem={({ item }) => <RoomItem item={item} />}
@@ -203,6 +237,12 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    container: {
+        flex: 1,
+        backgroundColor: '#25292e',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     flatListContent: {
         padding: '5%', // Padding around the entire list
@@ -244,5 +284,33 @@ const styles = StyleSheet.create({
     },
     childItem: {
         position: 'absolute',
+    },
+    textSection: {
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        padding: 15,
+        marginVertical: 10,
+        width: '100%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+        marginBottom: 8,
+        color: '#444',
+    },
+    sectionContent: {
+        fontSize: 16,
+        lineHeight: 24,
+        color: '#666',
+    },
+    button: {
+        fontSize: 20,
+        textDecorationLine: 'underline',
+        color: '#000'
     },
 });

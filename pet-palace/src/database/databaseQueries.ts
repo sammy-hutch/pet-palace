@@ -115,8 +115,8 @@ export const fetch_items: Record<string, string> = {
         FROM rooms_fact;
     `,
     "activities": `
-        SELECT activity_name, happiness_effect, health_effect, coin_effect, limited,
-            CASE WHEN limited = 1 AND log_date = CURRENT_DATE THEN 0 ELSE 1 END AS available
+        SELECT DISTINCT activity_name, happiness_effect, health_effect, coin_effect, limited,
+            CASE WHEN /*limited = 1 AND*/ log_date = CURRENT_DATE THEN 0 ELSE 1 END AS available
         FROM activities_facts
         LEFT JOIN activity_log ON activities_facts.activity_name = activity_log.log_type AND activity_log.log_date = CURRENT_DATE;
     `,
