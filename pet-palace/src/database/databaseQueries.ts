@@ -181,8 +181,8 @@ export const init_data: Record<string, string> = {
         ('Job', 0, 0, 1, 0),
         ('House Clean', 0, 5, 1, 1);`,
     "room_positions": `INSERT INTO room_positions (room_id, position_x, position_y) VALUES
-        (1, 73, 80),(1, 30, 65),(1, 12, 83),(1, 50, 95),(1, 35, 28),(1, 90, 37),
-        (2, 50, 95),(2, 60, 55),(2, 80, 90),(2, 25, 75),(2, 35, 25),(2, 65, 25),
+        (1, 70, 80),(1, 30, 65),(1, 12, 83),(1, 50, 95),(1, 35, 28),(1, 90, 35),
+        (2, 38, 96),(2, 60, 77),(2, 73, 93),(2, 25, 80),(2, 35, 25),(2, 65, 25),
         (3, 10, 95),(3, 40, 85),(3, 65, 75),(3, 85, 75),(3, 35, 35),(3, 75, 35),
         (4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),
         (5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50);`,
@@ -204,10 +204,15 @@ export const init_data: Record<string, string> = {
         (2, 'Scratching Post', 2, 0, 0, 'happiness', 5),
         (3, 'Yarn', 2, 0, 0, 'happiness', 5),
         (4, 'Feather Wand', 2, 0, 0, 'happiness', 5),
-        (5, 'Catnip Mouse', 2, 0, 0, 'happiness', 5);`,
+        (5, 'Catnip Mouse', 2, 0, 0, 'happiness', 5),
+        (1, 'Ball', 3, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 3, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 3, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 3, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 3, 0, 0, 'happiness', 5);`,
     "active_rooms": `INSERT INTO active_rooms (room_id, room_name, enrichment_type, enrichment_value) VALUES
         (1, 'Pink Room', 'health', 3),
-        (2, 'Cabin Room', 'health', 3)
+        (2, 'Cabin Room', 'health', 3),
         (3, 'Cosy Room', 'health', 3);`
 };
 

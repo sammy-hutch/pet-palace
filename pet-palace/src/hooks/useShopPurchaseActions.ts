@@ -1,6 +1,7 @@
 import { Alert } from 'react-native';
 import { useShopDbActions } from './useDbActions';
 import { PurchasableItem } from '../types/db';
+import { debug } from '../utils/vars';
 
 export const useShopPurchaseActions = () => {
     const {
@@ -74,7 +75,7 @@ export const useShopPurchaseActions = () => {
         });
     };
 
-    const handlePurchase = async (item: PurchasableItem): Promise<boolean> => {
+    const handlePurchase = async (item: PurchasableItem, coinCount: number): Promise<boolean> => {
         let itemType: string;
         let itemId: number;
         let itemCost: number;
@@ -105,6 +106,11 @@ export const useShopPurchaseActions = () => {
         } else {
             console.error('Attempted to purchase an unknown item type:', item);
             Alert.alert('Error', 'Could not process purchase for this item: Unknown type.');
+            return false;
+        }
+
+        if (coinCount < itemCost && !debug) {
+            Alert.alert('Insufficient Funds', `Not enough coins to ${action} ${itemName}.`);
             return false;
         }
 

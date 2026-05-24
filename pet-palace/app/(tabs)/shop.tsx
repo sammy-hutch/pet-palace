@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useShopDbActions } from '../../src/hooks/useDbActions';
 import { useShopPurchaseActions } from '../../src/hooks/useShopPurchaseActions';
 import { Cat, Toy, Room, PurchasableItem } from '../../src/types/db';
+import { debug } from '../../src/utils/vars';
 
 import Button from '@/components/Button';
 import CircleButton from '@/components/CircleButton';
@@ -63,7 +64,7 @@ export default function ShopScreen() {
     }, [navigation, coinCount]);
 
     const onPurchase = async (item: PurchasableItem) => {
-        const success = await handlePurchase(item);
+        const success = await handlePurchase(item, coinCount);
         if (success) {
             onModalClose();
             await fetchCoinCount();
