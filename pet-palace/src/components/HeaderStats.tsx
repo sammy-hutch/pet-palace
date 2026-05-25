@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useDatabaseItems, useShopDbActions } from '../src/hooks/useDbActions';
-import { ActiveCat } from '../src/types/db';
+import { useDatabaseItems, useShopDbActions } from '../hooks/useDbActions';
+import { ActiveCat } from '../types/db';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useDatabase } from '../src/database/DatabaseContext';
+import { useDatabase } from '../database/DatabaseContext';
 
 export default function HeaderStats() {
   const { items: activeCats, isFetching: catsLoading } = useDatabaseItems<ActiveCat>('active_cats');
@@ -57,23 +57,21 @@ export default function HeaderStats() {
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
-    backgroundColor: '#25292e',
+    backgroundColor: '#bae3dd',
     paddingHorizontal: 16,
     paddingBottom: 10,
-    paddingTop: 5,
+    paddingTop: 10,
     justifyContent: 'space-around',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(102, 102, 102, 0.2)',
   },
   statText: {
     color: '#fff',

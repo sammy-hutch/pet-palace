@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import HeaderStats from '../../components/HeaderStats';
+import HeaderStats from '../../src/components/HeaderStats';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
@@ -9,14 +9,11 @@ export default function TabLayout() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#25292e' }} edges={['top']}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: '#ffd33d',
-          headerStyle: {
-            backgroundColor: '#25292e',
-          },
-          headerShadowVisible: false,
-          headerTintColor: '#fff',
+          tabBarActiveTintColor: '#9e0585',
+          tabBarInactiveTintColor: '#404040',
           tabBarStyle: {
-            backgroundColor: '#25292e',
+            backgroundColor: '#76cb65',
+            borderTopWidth: 0,
           },
           header: () => <HeaderStats />,
         }}

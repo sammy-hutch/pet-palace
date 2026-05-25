@@ -1,7 +1,7 @@
 import React from 'react';
 import { FlatList, View, Text, ActivityIndicator, StyleSheet, Image, TouchableOpacity, Alert, ImageSourcePropType } from 'react-native';
-import { useDatabaseItems } from '../src/hooks/useDbActions';
-import { GenericDbItem } from '../src/types/db';
+import { useDatabaseItems } from '../hooks/useDbActions';
+import { GenericDbItem } from '../types/db';
 
 interface ItemListProps<T extends GenericDbItem> {
    itemType: string; // The item type, part of database table name (e.g., 'cats', 'toys', 'rooms')

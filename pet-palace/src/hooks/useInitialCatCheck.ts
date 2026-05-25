@@ -4,7 +4,7 @@ import { useDatabase } from "@/src/database/DatabaseContext";
 import { fetch_active_cat_count } from "@/src/database/databaseQueries";
 
 export function useInitialCatCheck() {
-  const { db, isLoading: isDbLoading, error: dbError } = useDatabase();
+  const { db, dbLoading: isDbLoading, dbError: dbError } = useDatabase();
   const [showFirstTimeSplash, setShowFirstTimeSplash] = useState(false);
   const [isCheckingCats, setIsCheckingCats] = useState(true);
   const [catCheckError, setCatCheckError] = useState<Error | null>(null);

@@ -69,9 +69,6 @@ export async function initDatabase() {
             await db.runAsync(update_daily_degrade);
             await db.runAsync(update_daily_upgrade);
             await db.runAsync(insert_log, ['cat_stats_update']);
-            console.log(`Cat stats updated for date: ${currentDate.toISOString().split('T')[0]}`);
-            let result = await db.getAllAsync(fetch_items['active_cats']);
-            console.log(`Active cats after update for ${currentDate.toISOString().split('T')[0]}:`, result);
             currentDate.setDate(currentDate.getDate() + 1);
         }
     }

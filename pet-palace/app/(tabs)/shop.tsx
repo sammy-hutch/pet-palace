@@ -1,12 +1,11 @@
 import { ImageSourcePropType, Text, View, StyleSheet, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useState, useLayoutEffect, useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
 
 import { useShopDbActions } from '../../src/hooks/useDbActions';
 import { useShopPurchaseActions } from '../../src/hooks/useShopPurchaseActions';
 import { Cat, Toy, Room, PurchasableItem } from '../../src/types/db';
-import ItemList from '@/components/ItemList';
-import ShopPopUp from '@/components/ShopPopUp';
+import ItemList from '@/src/components/ItemList';
+import ShopPopUp from '@/src/components/ShopPopUp';
 import { imageSources } from '../../src/utils/imageMap';
 
 export default function ShopScreen() {
