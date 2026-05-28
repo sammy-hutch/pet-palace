@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Alert, StyleSheet, ImageBackground } from 'react-native';
 
 
 import { useDatabaseItems, UseLogbookDbActions } from '../../src/hooks/useDbActions';
@@ -9,6 +9,9 @@ export default function LogbookScreen() {
     const { items: activities } = useDatabaseItems<Activity>('activities');
     const { items: activeCats } = useDatabaseItems<ActiveCat>('active_cats');
     const { logActivity, logTransaction, updateCatStats } = UseLogbookDbActions();
+
+    const backgroundImage = require('../../assets/images/artwork/PalaceBackground.png');
+    const logbookImage = require('../../assets/images/artwork/LogbookPage.png');
 
     const handleActivityPress = async (activity: Activity) => {
         console.log(`Activity: ${activity.activity_name}`);
@@ -67,45 +70,57 @@ export default function LogbookScreen() {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Activity Logbook</Text>
-            <FlatList
-                data={activities}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <View style={{ marginVertical: 10 }}>
-                        <TouchableOpacity 
-                            style={[
-                                styles.button,
-                                item.available ? styles.buttonAvailable : styles.buttonUnavailable
-                            ]}
-                            onPress={() => handleActivityPress(item)}>
-                            <Text style={styles.text}>{item.activity_name}</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-            />
-        </View>
+        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
+            <View style={styles.container}>
+                <ImageBackground source={logbookImage} style={styles.background} resizeMode="cover">
+                    <Text style={styles.text}>Activity Logbook</Text>
+                    <FlatList
+                        data={activities}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item }) => (
+                            <View style={{ marginVertical: 10 }}>
+                                <TouchableOpacity 
+                                    style={[
+                                        styles.button,
+                                        item.available ? styles.buttonAvailable : styles.buttonUnavailable
+                                    ]}
+                                    onPress={() => handleActivityPress(item)}>
+                                    <Text style={styles.buttonText}>{item.activity_name}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    />
+                </ImageBackground>
+            </View>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
     container: {
         flex: 1,
         backgroundColor: '#25292e',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: 40,
     },
     activityContainer: {
         marginVertical: 10,
         alignItems: 'center',
         width: 250,
+        padding: 10,
     },
     text: {
-        color: '#fff',
+        color: '#2f183b',
         marginBottom: 8,
-        fontSize: 16,
+        fontSize: 20,
+        fontWeight: '600',
+        paddingHorizontal: 10,
     },
     button: {
         paddingVertical: 10,
@@ -116,13 +131,13 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     buttonAvailable: {
-        backgroundColor: '#2196F3', // Your primary blue
+        backgroundColor: '#715e88', // Your primary blue
     },
     buttonUnavailable: {
         backgroundColor: '#555555', // Greyed-out state
     },
     buttonText: {
         color: '#fff',
-        fontWeight: '600',
+        fontWeight: '400',
     }
 });
