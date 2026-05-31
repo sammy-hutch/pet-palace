@@ -157,43 +157,45 @@ export const fetch_latest_log = `
 
 export const init_data: Record<string, string> = {
     "cats_fact": `INSERT INTO cats_fact (cat_name, cat_cost, preferred_toy_id, preferred_room_id) VALUES
-        ('Sissi', 100, 1, 1),
-        ('Max', 100, 2, 2),
-        ('Sot', 100, 3, 3),
-        ('Larry', 100, 4, 4),
-        ('LP', 100, 5, 5);`,
+        ('Sissi', 100, 3, 3),
+        ('Max', 100, 2, 5),
+        ('Sot', 100, 4, 2),
+        ('Larry', 100, 1, 1),
+        ('LP', 100, 5, 4);`,
     "toys_fact": `INSERT INTO toys_fact (toy_name, toy_cost, enrichment_type, enrichment_value) VALUES
-        ('Ball', 10, 'happiness', 5),
-        ('Scratching Post', 20, 'happiness', 5),
-        ('Yarn', 15, 'happiness', 5),
-        ('Feather Wand', 12, 'happiness', 5),
-        ('Catnip Mouse', 8, 'happiness', 5);`,
+        ('Ball', 30, 'happiness', 1),
+        ('Scratching Post', 30, 'happiness', 1),
+        ('Yarn', 30, 'happiness', 1),
+        ('Feather Wand', 30, 'happiness', 1),
+        ('Catnip Mouse', 30, 'happiness', 1);`,
     "rooms_fact": `INSERT INTO rooms_fact (room_name, room_cost, enrichment_type, enrichment_value) VALUES
-        ('Pink Room', 100, 'health', 3),
-        ('Cabin Room', 100, 'health', 3),
-        ('Cosy Room', 100, 'health', 3),
-        ('Plant Room', 100, 'health', 3),
-        ('Garden', 100, 'health', 3);`,
+        ('Pink Room', 50, 'health', 1),
+        ('Cabin Room', 50, 'health', 1),
+        ('Cosy Room', 50, 'health', 1),
+        ('Plant Room', 50, 'health', 1),
+        ('Garden', 50, 'health', 1);`,
     "activities_facts": `INSERT INTO activities_facts (activity_name, happiness_effect, health_effect, coin_effect, limited) VALUES
         ('Excercise', 0, 5, 1, 0),
         ('Creative Writing / Journaling', 5, 0, 1, 0),
         ('Duolingo', 5, 0, 1, 1),
-        ('Job', 0, 0, 1, 0),
+        ('Job', 0, 0, 5, 0),
         ('House Clean', 0, 5, 1, 1);`,
     "room_positions": `INSERT INTO room_positions (room_id, position_x, position_y) VALUES
         (1, 70, 80),(1, 30, 65),(1, 12, 83),(1, 50, 95),(1, 35, 28),(1, 90, 35),
-        (2, 38, 96),(2, 60, 77),(2, 73, 93),(2, 25, 80),(2, 35, 25),(2, 65, 25),
-        (3, 10, 95),(3, 40, 85),(3, 65, 75),(3, 85, 75),(3, 35, 35),(3, 75, 35),
-        (4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),(4, 50, 50),
-        (5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50),(5, 50, 50);`,
+        (2, 38, 96),(2, 60, 77),(2, 71, 94),(2, 23, 80),(2, 35, 25),(2, 65, 25),
+        (3, 15, 95),(3, 40, 92),(3, 63, 77),(3, 80, 80),(3, 30, 32),(3, 65, 32),
+        (4, 35, 46),(4, 67, 70),(4, 10, 85),(4, 30, 95),(4, 60, 95),(4, 86, 93),
+        (5, 48, 51),(5, 70, 50),(5, 25, 52),(5, 15, 85),(5, 50, 95),(5, 80, 90);`,
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
-        (CURRENT_TIMESTAMP, 100, 100);`,
+        (CURRENT_TIMESTAMP, 150, 150);`,
     "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
-        ('2026-05-10', 'cat_stats_update');`,
+        (CURRENT_DATE, 'cat_stats_update');`,
     "active_cats": `INSERT INTO active_cats (cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id) VALUES
         (1, 'Sissi', 1, 50, 50, 80, 90, 1, 1),
         (2, 'Max', 2, 60, 60, 70, 80, 2, 2),
-        (4, 'Larry', 3, 60, 60, 70, 80, 4, 4);`,
+        (3, 'Sot', 3, 70, 70, 60, 70, 3, 3),
+        (4, 'Larry', 4, 80, 80, 50, 60, 4, 4),
+        (5, 'LP', 5, 90, 90, 40, 50, 5, 5);`,
     "active_toys": `INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value) VALUES
         (1, 'Ball', 1, 0, 0, 'happiness', 5),
         (2, 'Scratching Post', 1, 0, 0, 'happiness', 5),
@@ -209,11 +211,23 @@ export const init_data: Record<string, string> = {
         (2, 'Scratching Post', 3, 0, 0, 'happiness', 5),
         (3, 'Yarn', 3, 0, 0, 'happiness', 5),
         (4, 'Feather Wand', 3, 0, 0, 'happiness', 5),
-        (5, 'Catnip Mouse', 3, 0, 0, 'happiness', 5);`,
+        (5, 'Catnip Mouse', 3, 0, 0, 'happiness', 5),
+        (1, 'Ball', 4, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 4, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 4, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 4, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 4, 0, 0, 'happiness', 5),
+        (1, 'Ball', 5, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 5, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 5, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 5, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 5, 0, 0, 'happiness', 5);`,
     "active_rooms": `INSERT INTO active_rooms (room_id, room_name, enrichment_type, enrichment_value) VALUES
         (1, 'Pink Room', 'health', 3),
         (2, 'Cabin Room', 'health', 3),
-        (3, 'Cosy Room', 'health', 3);`
+        (3, 'Cosy Room', 'health', 3),
+        (4, 'Plant Room', 'health', 3),
+        (5, 'Garden', 'health', 3);`
 };
 
 export const insert_log = `
@@ -240,6 +254,49 @@ export const insert_transaction = `
     VALUES (CURRENT_TIMESTAMP, ?, (SELECT running_balance FROM transaction_history ORDER BY transaction_datetime DESC LIMIT 1) + ?);
     `;
 
+export const test_init_data: Record<string, string> = {
+    "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
+        ('2026-05-10', 'cat_stats_update');`,
+    "active_cats": `INSERT INTO active_cats (cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id) VALUES
+        (1, 'Sissi', 1, 50, 50, 80, 90, 1, 1),
+        (2, 'Max', 2, 60, 60, 70, 80, 2, 2),
+        (3, 'Sot', 3, 70, 70, 60, 70, 3, 3),
+        (4, 'Larry', 4, 80, 80, 50, 60, 4, 4),
+        (5, 'LP', 5, 90, 90, 40, 50, 5, 5);`,
+    "active_toys": `INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value) VALUES
+        (1, 'Ball', 1, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 1, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 1, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 1, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 1, 0, 0, 'happiness', 5),
+        (1, 'Ball', 2, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 2, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 2, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 2, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 2, 0, 0, 'happiness', 5),
+        (1, 'Ball', 3, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 3, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 3, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 3, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 3, 0, 0, 'happiness', 5),
+        (1, 'Ball', 4, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 4, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 4, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 4, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 4, 0, 0, 'happiness', 5),
+        (1, 'Ball', 5, 0, 0, 'happiness', 5),
+        (2, 'Scratching Post', 5, 0, 0, 'happiness', 5),
+        (3, 'Yarn', 5, 0, 0, 'happiness', 5),
+        (4, 'Feather Wand', 5, 0, 0, 'happiness', 5),
+        (5, 'Catnip Mouse', 5, 0, 0, 'happiness', 5);`,
+    "active_rooms": `INSERT INTO active_rooms (room_id, room_name, enrichment_type, enrichment_value) VALUES
+        (1, 'Pink Room', 'health', 3),
+        (2, 'Cabin Room', 'health', 3),
+        (3, 'Cosy Room', 'health', 3),
+        (4, 'Plant Room', 'health', 3),
+        (5, 'Garden', 'health', 3);`
+};
+
 export const update_cat_happiness = `
     UPDATE active_cats
     SET happiness = MIN(100, happiness + ?)
@@ -254,12 +311,24 @@ export const update_cat_health = `
 
 export const update_daily_degrade = `
     UPDATE active_cats
-    SET happiness = MAX(0, happiness - 10),
-        health = MAX(0, health - 5);
+    SET happiness = MAX(0, happiness - 6),
+        health = MAX(0, health - 3);
 `;
 
 export const update_daily_upgrade = `
     UPDATE active_cats
-    SET happiness = MIN(100, happiness + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id), 0)),
-        health = MIN(100, health + COALESCE((SELECT enrichment_value FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0));
+    SET happiness = MIN(
+                100, (
+                    happiness 
+                    + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id), 0)
+                    + COALESCE((SELECT SUM(enrichment_value) FROM active_toys WHERE active_toys.active_cat_id = active_cats.active_cat_id AND active_toys.toy_id = active_cats.preferred_toy_id), 0)
+                )
+            ),
+        health = MIN(
+                100, (
+                    health 
+                    + COALESCE((SELECT SUM(enrichment_value) FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id), 0)
+                    + COALESCE((SELECT SUM(enrichment_value) FROM active_rooms WHERE active_rooms.active_room_id = active_cats.active_room_id AND active_rooms.room_id = active_cats.preferred_room_id), 0)
+                )
+            );
 `;

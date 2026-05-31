@@ -131,10 +131,10 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     buttonAvailable: {
-        backgroundColor: '#715e88', // Your primary blue
+        backgroundColor: '#715e88',
     },
     buttonUnavailable: {
-        backgroundColor: '#555555', // Greyed-out state
+        backgroundColor: '#555555',
     },
     buttonText: {
         color: '#fff',
