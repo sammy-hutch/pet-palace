@@ -175,17 +175,17 @@ export const init_data: Record<string, string> = {
         ('Plant Room', 50, 'health', 1),
         ('Garden', 50, 'health', 1);`,
     "activities_facts": `INSERT INTO activities_facts (activity_name, happiness_effect, health_effect, coin_effect, limited) VALUES
-        ('Excercise', 0, 5, 1, 0),
-        ('Creative Writing / Journaling', 5, 0, 1, 0),
-        ('Duolingo', 5, 0, 1, 1),
+        ('Excercise', 0, 5, 0, 0),
+        ('Creative Writing / Journaling', 5, 0, 0, 0),
+        ('Duolingo', 5, 0, 0, 1),
         ('Job', 0, 0, 5, 0),
-        ('House Clean', 0, 5, 1, 1);`,
+        ('House Clean', 0, 5, 0, 1);`,
     "room_positions": `INSERT INTO room_positions (room_id, position_x, position_y) VALUES
         (1, 70, 80),(1, 30, 65),(1, 12, 83),(1, 50, 95),(1, 35, 28),(1, 90, 35),
         (2, 38, 96),(2, 60, 77),(2, 71, 94),(2, 23, 80),(2, 35, 25),(2, 65, 25),
         (3, 15, 95),(3, 40, 92),(3, 63, 77),(3, 80, 80),(3, 30, 32),(3, 65, 32),
         (4, 35, 46),(4, 67, 70),(4, 10, 85),(4, 30, 95),(4, 60, 95),(4, 86, 93),
-        (5, 48, 51),(5, 70, 50),(5, 25, 52),(5, 15, 85),(5, 50, 95),(5, 80, 90);`,
+        (5, 48, 52),(5, 70, 50),(5, 25, 52),(5, 15, 85),(5, 50, 95),(5, 80, 90);`,
     "transaction_history": `INSERT INTO transaction_history (transaction_datetime, transaction_value, running_balance) VALUES
         (CURRENT_TIMESTAMP, 150, 150);`,
     "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
@@ -198,7 +198,7 @@ export const insert_log = `
 
 export const insert_item_into_active_cats = `
     INSERT INTO active_cats (cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id)
-    SELECT cat_id, cat_name, ?, 0, 0, 50, 100, preferred_toy_id, preferred_room_id FROM cats_fact WHERE cat_id = ?;
+    SELECT cat_id, cat_name, ?, 0, 0, 100, 100, preferred_toy_id, preferred_room_id FROM cats_fact WHERE cat_id = ?;
 `;
 
 export const insert_item_into_active_toys = `
