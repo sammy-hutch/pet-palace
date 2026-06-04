@@ -190,44 +190,6 @@ export const init_data: Record<string, string> = {
         (CURRENT_TIMESTAMP, 150, 150);`,
     "activity_log": `INSERT INTO activity_log (log_date, log_type) VALUES
         (CURRENT_DATE, 'cat_stats_update');`,
-    "active_cats": `INSERT INTO active_cats (cat_id, cat_name, active_room_id, position_x, position_y, happiness, health, preferred_toy_id, preferred_room_id) VALUES
-        (1, 'Sissi', 1, 50, 50, 80, 90, 1, 1),
-        (2, 'Max', 2, 60, 60, 70, 80, 2, 2),
-        (3, 'Sot', 3, 70, 70, 60, 70, 3, 3),
-        (4, 'Larry', 4, 80, 80, 50, 60, 4, 4),
-        (5, 'LP', 5, 90, 90, 40, 50, 5, 5);`,
-    "active_toys": `INSERT INTO active_toys (toy_id, toy_name, active_cat_id, position_x, position_y, enrichment_type, enrichment_value) VALUES
-        (1, 'Ball', 1, 0, 0, 'happiness', 5),
-        (2, 'Scratching Post', 1, 0, 0, 'happiness', 5),
-        (3, 'Yarn', 1, 0, 0, 'happiness', 5),
-        (4, 'Feather Wand', 1, 0, 0, 'happiness', 5),
-        (5, 'Catnip Mouse', 1, 0, 0, 'happiness', 5),
-        (1, 'Ball', 2, 0, 0, 'happiness', 5),
-        (2, 'Scratching Post', 2, 0, 0, 'happiness', 5),
-        (3, 'Yarn', 2, 0, 0, 'happiness', 5),
-        (4, 'Feather Wand', 2, 0, 0, 'happiness', 5),
-        (5, 'Catnip Mouse', 2, 0, 0, 'happiness', 5),
-        (1, 'Ball', 3, 0, 0, 'happiness', 5),
-        (2, 'Scratching Post', 3, 0, 0, 'happiness', 5),
-        (3, 'Yarn', 3, 0, 0, 'happiness', 5),
-        (4, 'Feather Wand', 3, 0, 0, 'happiness', 5),
-        (5, 'Catnip Mouse', 3, 0, 0, 'happiness', 5),
-        (1, 'Ball', 4, 0, 0, 'happiness', 5),
-        (2, 'Scratching Post', 4, 0, 0, 'happiness', 5),
-        (3, 'Yarn', 4, 0, 0, 'happiness', 5),
-        (4, 'Feather Wand', 4, 0, 0, 'happiness', 5),
-        (5, 'Catnip Mouse', 4, 0, 0, 'happiness', 5),
-        (1, 'Ball', 5, 0, 0, 'happiness', 5),
-        (2, 'Scratching Post', 5, 0, 0, 'happiness', 5),
-        (3, 'Yarn', 5, 0, 0, 'happiness', 5),
-        (4, 'Feather Wand', 5, 0, 0, 'happiness', 5),
-        (5, 'Catnip Mouse', 5, 0, 0, 'happiness', 5);`,
-    "active_rooms": `INSERT INTO active_rooms (room_id, room_name, enrichment_type, enrichment_value) VALUES
-        (1, 'Pink Room', 'health', 3),
-        (2, 'Cabin Room', 'health', 3),
-        (3, 'Cosy Room', 'health', 3),
-        (4, 'Plant Room', 'health', 3),
-        (5, 'Garden', 'health', 3);`
 };
 
 export const insert_log = `

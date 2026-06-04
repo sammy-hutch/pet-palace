@@ -214,6 +214,7 @@ export default function RoomsScreen() {
                 data={roomsWithDetails}
                 renderItem={({ item }) => <RoomItem item={item} />}
                 keyExtractor={(item) => item.active_room_id.toString()}
+                style={{ width: '100%' }}
                 contentContainerStyle={styles.flatListContent}
                 showsVerticalScrollIndicator={false}
             />
@@ -224,8 +225,9 @@ export default function RoomsScreen() {
 const styles = StyleSheet.create({
     background: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-end',
         alignItems: 'center',
+        width: '100%',
     },
     container: {
         flex: 1,
@@ -235,6 +237,8 @@ const styles = StyleSheet.create({
     },
     flatListContent: {
         padding: '5%',
+        flexGrow: 1,
+        justifyContent: 'flex-end',
     },
     roomContainer: {
         borderWidth: 2,
