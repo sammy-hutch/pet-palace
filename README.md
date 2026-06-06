@@ -3,10 +3,10 @@ productivity app where you look after cats
 
 ## Gallery
 <div style="display: flex; flex-wrap: wrap; justify-content: space-around; gap: 15px; margin-bottom: 20px;">
-<img src="/pet-palace/assets/images/screens/palace_screen.jpg" alt="Palace Screen" style="width: 25%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
-<img src="/pet-palace/assets/images/screens/logbook_screen.jpg" alt="Logbook Screen" style="width: 25%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
-<img src="/pet-palace/assets/images/screens/shop_screen.jpg" alt="Shop Screen" style="width: 25%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
-<img src="/pet-palace/assets/images/screens/buy_screen.jpg" alt="Buy Screen" style="width: 25%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+<img src="/pet-palace/assets/images/screens/palace_screen.jpg" alt="Palace Screen" style="width: 20%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+<img src="/pet-palace/assets/images/screens/logbook_screen.jpg" alt="Logbook Screen" style="width: 20%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+<img src="/pet-palace/assets/images/screens/shop_screen.jpg" alt="Shop Screen" style="width: 20%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
+<img src="/pet-palace/assets/images/screens/buy_screen.jpg" alt="Buy Screen" style="width: 20%; max-width: 300px; height: auto; border: 1px solid #ddd; border-radius: 5px;">
 </div>
 
 ## Screens:
