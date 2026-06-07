@@ -176,9 +176,12 @@ export const init_data: Record<string, string> = {
         ('Garden', 50, 'health', 1);`,
     "activities_facts": `INSERT INTO activities_facts (activity_name, happiness_effect, health_effect, coin_effect, limited) VALUES
         ('Excercise', 0, 5, 0, 0),
-        ('Creative Writing / Journaling', 5, 0, 0, 0),
+        ('Creative Writing', 5, 0, 0, 0),
+        ('Journaling', 5, 0, 0, 0),
+        ('Reading', 5, 0, 0, 0),
         ('Duolingo', 5, 0, 0, 1),
         ('Job', 0, 0, 5, 0),
+        ('Water Plants', 0, 5, 0, 1),
         ('House Clean', 0, 5, 0, 1);`,
     "room_positions": `INSERT INTO room_positions (room_id, position_x, position_y) VALUES
         (1, 70, 80),(1, 30, 65),(1, 12, 83),(1, 50, 95),(1, 35, 28),(1, 90, 35),
