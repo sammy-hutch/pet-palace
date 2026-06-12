@@ -18,3 +18,7 @@ productivity app where you look after cats
 - Each day that goes by, you earn some coins. you can earn more coins by logging work. You can earn health for your pets by logging exercise. you can earn happiness/enrichment for your pets by logging duolingo, reading time, writing time etc
 - You can buy toys to increase happiness, improve room to increase health etc, so you don't have to do it yourself by logging productivity.
 - You can have many cats, but more cats means more needs to be met
+
+
+## Change requests
+- logbook screen: new entry for allergy tablet
